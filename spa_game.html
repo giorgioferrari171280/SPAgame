@@ -243,8 +243,9 @@
 
         /* Container per l'immagine della cutscene - QUADRATO PERFETTO */
         .image-container {
-            width: 80vh; /* Dimensione fissa basata su viewport height */
-            height: 80vh; /* Stessa dimensione per garantire quadrato perfetto */
+            width: 90%;
+            aspect-ratio: 1;
+            max-width: 80vh;
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
@@ -584,7 +585,6 @@
         /* Container per l'immagine della cutscene - QUADRATO PERFETTO per game UI */
         .image-container-game {
             width: 90%;
-            height: 90%;
             max-width: 80vh;
             max-height: 80vh;
             aspect-ratio: 1;
@@ -685,7 +685,7 @@
         /* Etichetta della risorsa */
         .resource-label {
             color: #ffffff;
-            font-size: 2.5vh;
+            font-size: 1.8vh;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
