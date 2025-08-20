@@ -898,9 +898,41 @@
             font-size: 2.4vh;
             line-height: 1.6;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* Ridotto per fare spazio all'input */
             color: rgba(255, 255, 255, 0.9);
             white-space: pre-line;
+        }
+
+        /* Stile per l'input nel modale */
+        .modal-input-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .modal-input {
+            width: 80%;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 2.2vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #5dade2;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+        }
+
+        .modal-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         /* Container dei pulsanti */
@@ -1575,6 +1607,66 @@
             }, 300);
         }
         
+        // Funzione per mostrare modale con input (es. nome giocatore)
+        function showNameInputModal(title, message, placeholder, onConfirm, onCancel = null) {
+            const overlay = document.getElementById('modal-overlay');
+            const titleElement = document.getElementById('modal-title');
+            const messageElement = document.getElementById('modal-message');
+            const buttonsElement = document.getElementById('modal-buttons');
+
+            console.log('📝 Mostrando modale con input:', title);
+
+            // Imposta contenuto
+            titleElement.textContent = title;
+            titleElement.className = 'modal-title info-title';
+            messageElement.innerHTML = `
+                ${message}
+                <div class="modal-input-container">
+                    <input type="text" id="modal-input-field" class="modal-input" placeholder="${placeholder}">
+                </div>
+            `;
+
+            // Memorizza le callback
+            currentModalCallbacks = {
+                confirm: () => {
+                    const inputField = document.getElementById('modal-input-field');
+                    if (onConfirm && typeof onConfirm === 'function') {
+                        onConfirm(inputField.value);
+                    }
+                },
+                cancel: typeof onCancel === 'function' ? onCancel : null
+            };
+
+            // Crea pulsanti
+            buttonsElement.innerHTML = `
+                <button class="modal-button cancel" onclick="executeModalAction('cancel')">
+                    ANNULLA
+                </button>
+                <button class="modal-button confirm" onclick="executeModalAction('confirm')">
+                    CONFERMA
+                </button>
+            `;
+
+            // Mostra modale
+            overlay.classList.add('active');
+            currentModal = 'input'; // Nuovo tipo di modale
+
+            // Focus sul campo di input
+            setTimeout(() => {
+                const inputField = document.getElementById('modal-input-field');
+                if (inputField) {
+                    inputField.focus();
+                    // Gestione tasto Enter per confermare
+                    inputField.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            executeModalAction('confirm');
+                        }
+                    });
+                }
+            }, 300);
+        }
+
         // Funzione unificata per eseguire le azioni dei modali
         function executeModalAction(action) {
             console.log('🎬 Eseguendo azione modale:', action);
@@ -1627,7 +1719,7 @@
                 } else if (event.key === 'Enter') {
                     console.log('⌨️ Conferma modale da ENTER');
                     event.preventDefault();
-                    if (currentModal === 'confirm') {
+                    if (currentModal === 'confirm' || currentModal === 'input') {
                         executeModalAction('confirm');
                     } else if (currentModal === 'info') {
                         executeModalAction('continue');
@@ -1663,26 +1755,38 @@
         function startNewGame() {
             console.log('🎮 Avviando nuova partita...');
 
-            // Chiedi conferma prima di resettare i progressi
-            showConfirmModal(
-                "NUOVA PARTITA",
-                "Vuoi iniziare una nuova partita? I tuoi progressi attuali verranno resettati.",
-                () => {
-                    console.log('✅ Nuova partita confermata. Resetto i dati di gioco.');
+            showNameInputModal(
+                "INIZIA UNA NUOVA AVVENTURA",
+                "Inserisci il nome del tuo eroe per iniziare il viaggio.",
+                "Nome dell'Eroe...",
+                (playerName) => {
+                    if (!playerName || playerName.trim() === "") {
+                        showInfoModal("NOME NON VALIDO", "Per favore, inserisci un nome per il tuo eroe.");
+                        return;
+                    }
 
-                    // Resetta i dati di progressione principali
-                    Player.set('gameData.currentBoardPosition', 0);
-                    Player.set('gameData.currentLocation', gameBoard[0]); // Imposta la location iniziale
-                    Player.set('progress.completedQuests', []);
-                    Player.set('progress.activeQuests', []);
-                    // Potremmo aggiungere qui altri reset se necessario (es. inventario, risorse)
+                    console.log(`✅ Nome scelto: ${playerName}. Resetto i dati di gioco.`);
+                    Player.set('profile.playerName', playerName.trim());
+
+                    // Reset profondo dei dati di gioco
+                    Player.data.resources = JSON.parse(JSON.stringify(Player.defaultData.resources));
+                    Player.data.progress = JSON.parse(JSON.stringify(Player.defaultData.progress));
+                    Player.data.inventory = JSON.parse(JSON.stringify(Player.defaultData.inventory));
+                    Player.data.stats = JSON.parse(JSON.stringify(Player.defaultData.stats));
+                    Player.data.profile.level = 1;
+                    Player.data.profile.experience = 0;
+                    Player.data.gameData = JSON.parse(JSON.stringify(Player.defaultData.gameData));
 
                     // Salva le modifiche
                     Player.saveData(true);
+                    updateResourcesDisplay(); // Aggiorna l'UI immediatamente
 
                     // Vai alla cutscene iniziale
                     showSection('cutscene-section');
-                    loadCutsceneData("cutscene_01"); // Assicurati di partire dalla prima cutscene
+                    loadCutsceneData("cutscene_01");
+                },
+                () => {
+                    console.log('❌ Creazione nuova partita annullata.');
                 }
             );
         }
@@ -1821,8 +1925,6 @@
                     meta: {
                         version: this.saveVersion,
                         lastSaved: new Date().toISOString(),
-                        playTime: 0, // in secondi
-                        sessionStart: new Date().getTime()
                     },
                     
                     // === PROFILO GIOCATORE ===
@@ -1924,9 +2026,6 @@
                 
                 // Avvia il sistema di auto-save
                 this.startAutoSave();
-                
-                // Aggiorna il tempo di gioco
-                this.startPlayTimeTracking();
             }
             
             // === SISTEMA DI CARICAMENTO ===
@@ -1991,13 +2090,6 @@
                     clearInterval(this.autoSaveTimer);
                     this.autoSaveTimer = null;
                 }
-            }
-            
-            // === TRACKING TEMPO DI GIOCO ===
-            startPlayTimeTracking() {
-                setInterval(() => {
-                    this.data.meta.playTime += 1;
-                }, 1000);
             }
             
             // === GETTER/SETTER SICURI ===
@@ -2944,7 +3036,7 @@
                 
                 showInfoModal(
                     "DOWNLOAD COMPLETATO",
-                    `Savegame scaricato con successo!\n\nFile: ${filename}\nLivello: ${level}\nTempo di gioco: ${Math.floor(Player.get('meta.playTime') / 60)} minuti`,
+                    `Savegame scaricato con successo!\n\nFile: ${filename}\nLivello: ${level}`,
                     null,
                     'download'
                 );
@@ -3003,9 +3095,8 @@
                     const playerName = savegameData.playerData?.profile?.playerName || 'Unknown';
                     const level = savegameData.playerData?.profile?.level || 0;
                     const exportDate = new Date(savegameData.exportDate).toLocaleString();
-                    const playTime = Math.floor((savegameData.playerData?.meta?.playTime || 0) / 60);
                     
-                    const confirmMessage = `IMPORTA SAVEGAME\n─────────────────────\nGiocatore: ${playerName}\nLivello: ${level}\nTempo di gioco: ${playTime} minuti\nData export: ${exportDate}\n─────────────────────\n\nATTENZIONE: Questo sovrascriverà i tuoi dati attuali!\n\nVuoi procedere con l'importazione?`;
+                    const confirmMessage = `IMPORTA SAVEGAME\n─────────────────────\nGiocatore: ${playerName}\nLivello: ${level}\nData export: ${exportDate}\n─────────────────────\n\nATTENZIONE: Questo sovrascriverà i tuoi dati attuali!\n\nVuoi procedere con l'importazione?`;
                     
                     showConfirmModal(
                         "CONFERMA IMPORTAZIONE",
@@ -3232,7 +3323,6 @@
                 console.log('Rubini:', Player.get('resources.rubies'));
                 console.log('Quest attive:', Player.get('progress.activeQuests').length);
                 console.log('Quest completate:', Player.get('progress.completedQuests').length);
-                console.log('Tempo di gioco:', Math.floor(Player.get('meta.playTime') / 60), 'minuti');
                 console.log('Location corrente:', currentGameLocation);
             },
             
