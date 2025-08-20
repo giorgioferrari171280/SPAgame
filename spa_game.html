@@ -731,7 +731,7 @@
         /* Pulsanti rettangolari */
         .action-button {
             width: 100%;
-            height: 30%;
+            height: 22%;
             background: linear-gradient(135deg, #3498db, #2980b9);
             border: 1px solid #ecf0f1;
             color: #ecf0f1;
@@ -1644,8 +1644,29 @@
         
         function startNewGame() {
             console.log('🎮 Avviando nuova partita...');
-            showSection('cutscene-section');
-            loadCutsceneData(currentCutsceneId);
+
+            // Chiedi conferma prima di resettare i progressi
+            showConfirmModal(
+                "NUOVA PARTITA",
+                "Vuoi iniziare una nuova partita? I tuoi progressi attuali verranno resettati.",
+                () => {
+                    console.log('✅ Nuova partita confermata. Resetto i dati di gioco.');
+
+                    // Resetta i dati di progressione principali
+                    Player.set('gameData.currentBoardPosition', 0);
+                    Player.set('gameData.currentLocation', gameBoard[0]); // Imposta la location iniziale
+                    Player.set('progress.completedQuests', []);
+                    Player.set('progress.activeQuests', []);
+                    // Potremmo aggiungere qui altri reset se necessario (es. inventario, risorse)
+
+                    // Salva le modifiche
+                    Player.saveData(true);
+
+                    // Vai alla cutscene iniziale
+                    showSection('cutscene-section');
+                    loadCutsceneData("cutscene_01"); // Assicurati di partire dalla prima cutscene
+                }
+            );
         }
 
         function loadGame() {
@@ -1864,6 +1885,7 @@
                     
                     // === DATI DI GIOCO ===
                     gameData: {
+                        currentBoardPosition: 0,
                         currentLocation: 'village_start',
                         lastSavePoint: 'village_inn',
                         gameFlags: {
@@ -2136,147 +2158,161 @@
 
         // ================= DYNAMIC GAME DATA SYSTEM =================
         
+        // ================= GAME BOARD AND LOCATIONS =================
+
+        // Il tabellone di gioco definisce l'ordine delle locazioni
+        const gameBoard = [
+            'location_1', 'location_2', 'location_3', 'location_4', 'location_5',
+            'location_6', 'location_7', 'location_8', 'location_9', 'location_10'
+        ];
+
         // Sistema di location dinamiche per il gioco
         const gameLocations = {
-            "village_start": {
-                id: "village_start",
-                title: "Il Villaggio di Partenza",
-                image: "village_start.jpg",
-                baseNarrative: "Ti trovi nel piccolo villaggio dove è iniziata la tua avventura. Le case di pietra e legno si estendono lungo la strada principale, mentre i mercanti preparano le loro bancarelle per un nuovo giorno.",
-                guideText: "Benvenuto nel villaggio! Qui puoi riposare, commerciare, e prepararti per nuove avventure. Scegli cosa fare cliccando sui pulsanti.",
+            "location_1": {
+                id: "location_1",
+                title: "Mercato del Legname",
+                image: "locations/lumber_market.jpg",
+                guideText: "Sei al Mercato del Legname. Qui i boscaioli vendono il frutto del loro duro lavoro. L'aria profuma di resina e legno appena tagliato.",
                 buttons: [
-                    {
-                        id: "btn_tavern",
-                        text: "GO TO COAL MINES",
-                        class: "action-button",
-                        hoverText: "Vai alle miniere di carbone della regione di Suxley. Per spostarti devi spendere 1 turno.",
-                        actions: [
-                            { type: "changeLocation", locationId: "coal_mine"  }
-                        ]
-                    },
-                    {
-                        id: "btn_market",
-                        text: "MERCATO",
-                        class: "action-button success",
-                        hoverText: "Visita il mercato per vendere i tuoi oggetti e comprare nuovi equipaggiamenti. I prezzi variano in base alla domanda.",
-                        actions: [
-                            { type: "addResource", resource: "gold", amount: 50 },
-                            { type: "addResource", resource: "wood", amount: -5 },
-                            { type: "showMessage", title: "MERCATO", message: "Hai venduto legno al mercato.\n\n+50 Oro\n-5 Legno" }
-                        ]
-                    },
-                    {
-                        id: "btn_forest",
-                        text: "FORESTA",
-                        class: "action-button danger",
-                        hoverText: "Avventurati nella foresta misteriosa. Attenzione: potresti incontrare creature pericolose, ma anche trovare tesori nascosti.",
-                        actions: [
-                            { type: "changeLocation", locationId: "dark_forest" },
-                            { type: "addResource", resource: "energy", amount: -10 }
-                        ]
-                    }
+                    { id: "lumber_chop", text: "Taglia Legna", class: "action-button", hoverText: "Passa del tempo a tagliare legna. (-10 Energia, +25 Legno)", actions: [{ type: "addResource", resource: "energy", amount: -10 }, { type: "addResource", resource: "wood", amount: 25 }, { type: "showMessage", title: "Legna Raccolta", message: "Hai raccolto 25 unità di legno." }] },
+                    { id: "lumber_sell", text: "Vendi Legno", class: "action-button success", hoverText: "Vendi 50 unità di legno per 75 Oro.", actions: [{ type: "removeResource", resource: "wood", amount: 50 }, { type: "addResource", resource: "gold", amount: 75 }, { type: "showMessage", title: "Legno Venduto", message: "Hai venduto 50 legno per 75 oro." }] },
+                    { id: "lumber_event", text: "Inciampo", class: "action-button danger", hoverText: "Ops! Hai inciampato su una radice e hai perso un po' di energia.", actions: [{ type: "addResource", resource: "energy", amount: -5 }, { type: "showMessage", title: "Sei Inciampato!", message: "Che sfortuna! Hai perso 5 energia." }] }
                 ]
             },
-            
-            "coal_mine": {
-                id: "coal_mines",
-                title: "LE MINIERE DI CARBONE DI SUXLEY",
-                image: "coal_mines.jpg",
-                baseNarrative: "Qui viene estratto il carbone che può servire per alimentare i vaporetti e i treni per il trasporto delle merci. Puoi posizionare dei lavoratori qui come minatori di carbone. Spendi 1 lavoratore per ottenere 3 unità di carbone.",
-                guideText: "Sei nella foresta oscura. Qui ogni passo può nascondere pericoli o tesori. Procedi con cautela e scegli saggiamente le tue azioni.",
+            "location_2": {
+                id: "location_2",
+                title: "Cava di Pietra",
+                image: "locations/stone_quarry.jpg",
+                guideText: "La cava di pietra è un luogo polveroso e rumoroso. I minatori spaccano la roccia sotto il sole cocente.",
                 buttons: [
-                    {
-                        id: "btn_search",
-                        text: "INVIA UN MINATORE",
-                        class: "action-button",
-                        hoverText: "Impiega 1 minatore per ottenere +3 unità di carbone. Per farlo spendi 2 turni di gioco.",
-                        actions: [
-                            { type: "addResource", resource: "energy", amount: -2 },
-                            { type: "addResource", resource: "rubies", amount: 3 },
-                            { type: "addResource", resource: "gold", amount: -1 },
-                            { type: "showMessage", title: "TESORO TROVATO!", message: "Hai trovato un piccolo forziere nascosto!\n\n+25 Rubini\n+100 Oro\n-15 Energia" }
-                        ]
-                    },
-                    {
-                        id: "btn_rest",
-                        text: "RIPOSA",
-                        class: "action-button success",
-                        hoverText: "Fermati per riposare e recuperare energie. Un momento di pausa può fare la differenza in un lungo viaggio.",
-                        actions: [
-                            { type: "addResource", resource: "energy", amount: 20 },
-                            { type: "showMessage", title: "RIPOSO", message: "Ti sei riposato all'ombra di un grande albero.\n\n+20 Energia" }
-                        ]
-                    },
-                    {
-                        id: "btn_return",
-                        text: "TORNA AL VILLAGGIO",
-                        class: "action-button",
-                        hoverText: "Ritorna al villaggio dove potrai riposare, commerciare e pianificare la tua prossima mossa in sicurezza.",
-                        actions: [
-                            { type: "changeLocation", locationId: "village_start" },
-                            { type: "addResource", resource: "energy", amount: -5 }
-                        ]
-                    }
+                    { id: "quarry_mine", text: "Estrai Pietra", class: "action-button", hoverText: "Lavora nella cava per estrarre pietra. (-15 Energia, +30 Pietra)", actions: [{ type: "addResource", resource: "energy", amount: -15 }, { type: "addResource", resource: "stone", amount: 30 }, { type: "showMessage", title: "Pietra Estratta", message: "Hai estratto 30 unità di pietra." }] },
+                    { id: "quarry_sell", text: "Vendi Pietra", class: "action-button success", hoverText: "Vendi 50 unità di pietra per 80 Oro.", actions: [{ type: "removeResource", resource: "stone", amount: 50 }, { type: "addResource", resource: "gold", amount: 80 }, { type: "showMessage", title: "Pietra Venduta", message: "Hai venduto 50 pietra per 80 oro." }] },
+                    { id: "quarry_event", text: "Vena d'Oro", class: "action-button success", hoverText: "Fortunato! Hai trovato una piccola vena d'oro mentre estraevi.", actions: [{ type: "addResource", resource: "gold", amount: 25 }, { type: "showMessage", title: "Vena d'Oro!", message: "Hai trovato 25 oro extra!" }] }
                 ]
             },
-            
-            "ancient_ruins": {
-                id: "ancient_ruins",
-                title: "Le Rovine Antiche",
-                image: "ancient_ruins.jpg",
-                baseNarrative: "Davanti a te si ergono le rovine di una civiltà perduta. Le pietre coperte di muschio raccontano storie di un tempo dimenticato, mentre misteriose incisioni brillano di una luce tenue.",
-                guideText: "Sei arrivato alle rovine antiche. Questo luogo è pieno di misteri e antiche magie. Le tue scelte qui potrebbero cambiare il corso della tua avventura.",
+            "location_3": {
+                id: "location_3",
+                title: "Gilda dei Mercanti",
+                image: "locations/merchant_guild.jpg",
+                guideText: "La Gilda dei Mercanti è un edificio opulento, pieno di commercianti che discutono di affari e profitti.",
                 buttons: [
-                    {
-                        id: "btn_investigate",
-                        text: "INVESTIGA",
-                        class: "action-button",
-                        hoverText: "Esamina attentamente le rovine per scoprire i loro segreti. Potresti trovare indizi, artefatti magici, o conoscenze perdute.",
-                        actions: [
-                            { type: "addResource", resource: "crystals", amount: 50 },
-                            { type: "addResource", resource: "energy", amount: -20 },
-                            { type: "addExperience", amount: 75 },
-                            { type: "showMessage", title: "SCOPERTA ARCHEOLOGICA", message: "Hai decifrato un'antica iscrizione!\n\n+50 Cristalli\n+75 Esperienza\n-20 Energia" }
-                        ]
-                    },
-                    {
-                        id: "btn_magic_ritual",
-                        text: "RITUALE MAGICO",
-                        class: "action-button success",
-                        hoverText: "Prova a compiere un antico rituale magico. Potrebbe portare grandi benefici, ma richiede molte risorse e non è privo di rischi.",
-                        actions: [
-                            { type: "addResource", resource: "rubies", amount: -50 },
-                            { type: "addResource", resource: "crystals", amount: -30 },
-                            { type: "addResource", resource: "gold", amount: 500 },
-                            { type: "addResource", resource: "energy", amount: 50 },
-                            { type: "addExperience", amount: 150 },
-                            { type: "showMessage", title: "MAGIA ANTICA", message: "Il rituale ha avuto successo! Gli spiriti antichi ti benedicono.\n\n+500 Oro\n+50 Energia\n+150 Esperienza\n\n-50 Rubini\n-30 Cristalli" }
-                        ]
-                    },
-                    {
-                        id: "btn_leave_ruins",
-                        text: "LASCIA LE ROVINE",
-                        class: "action-button danger",
-                        hoverText: "Abbandona le rovine e cerca un altro percorso. A volte la prudenza è la scelta migliore di fronte all'ignoto.",
-                        actions: [
-                            { type: "changeLocation", locationId: "village_start" }
-                        ]
-                    }
+                    { id: "guild_trade", text: "Commercia", class: "action-button", hoverText: "Fai un affare vantaggioso. (-50 Oro, +10 Rubini)", actions: [{ type: "removeResource", resource: "gold", amount: 50 }, { type: "addResource", resource: "rubies", amount: 10 }, { type: "showMessage", title: "Affare Fatto", message: "Hai scambiato 50 Oro per 10 Rubini." }] },
+                    { id: "guild_invest", text: "Investi", class: "action-button success", hoverText: "Investi 100 Oro in una spedizione commerciale.", actions: [{ type: "removeResource", resource: "gold", amount: 100 }, { type: "showMessage", title: "Investimento", message: "Hai investito 100 Oro. Speriamo bene!" }] },
+                    { id: "guild_event", text: "Tassa a Sorpresa", class: "action-button danger", hoverText: "La gilda impone una tassa inaspettata a tutti i presenti.", actions: [{ type: "addResource", resource: "gold", amount: -30 }, { type: "showMessage", title: "Tassa Inaspettata", message: "Hai dovuto pagare una tassa di 30 Oro." }] }
+                ]
+            },
+            "location_4": {
+                id: "location_4",
+                title: "Miniera di Carbone",
+                image: "locations/coal_mine.jpg",
+                guideText: "L'aria è pesante di polvere di carbone. Le gallerie si addentrano nel cuore della montagna.",
+                buttons: [
+                    { id: "coal_mine", text: "Estrai Carbone", class: "action-button", hoverText: "Scava per il carbone. (-12 Energia, +20 Carbone)", actions: [{ type: "addResource", resource: "energy", amount: -12 }, { type: "addResource", resource: "coal", amount: 20 }, { type: "showMessage", title: "Carbone Estratto", message: "Hai estratto 20 unità di carbone." }] },
+                    { id: "coal_sell", text: "Vendi Carbone", class: "action-button success", hoverText: "Vendi 40 unità di carbone per 100 Oro.", actions: [{ type: "removeResource", resource: "coal", amount: 40 }, { type: "addResource", resource: "gold", amount: 100 }, { type: "showMessage", title: "Carbone Venduto", message: "Hai venduto 40 carbone per 100 oro." }] },
+                    { id: "coal_event", text: "Fuga di Gas", class: "action-button danger", hoverText: "Una piccola fuga di gas ti costringe a una ritirata frettolosa.", actions: [{ type: "addResource", resource: "energy", amount: -10 }, { type: "showMessage", title: "Fuga di Gas!", message: "Sei dovuto scappare, perdendo 10 energia." }] }
+                ]
+            },
+            "location_5": {
+                id: "location_5",
+                title: "Laboratorio Alchemico",
+                image: "locations/alchemist_lab.jpg",
+                guideText: "Strani fumi e odori riempiono il laboratorio. L'alchimista è immerso nei suoi esperimenti.",
+                buttons: [
+                    { id: "lab_assist", text: "Assisti l'Alchimista", class: "action-button", hoverText: "Aiuta con un esperimento. (-5 Rubini, +1 Pozione)", actions: [{ type: "removeResource", resource: "rubies", amount: 5 }, { type: "addItem", itemId: "potion_health", quantity: 1 }, { type: "showMessage", title: "Esperimento Riuscito", message: "Hai creato una pozione della salute!" }] },
+                    { id: "lab_transmute", text: "Trasmuta Pietra", class: "action-button success", hoverText: "Prova a trasmutare la pietra in oro. (-20 Pietra, +30 Oro)", actions: [{ type: "removeResource", resource: "stone", amount: 20 }, { type: "addResource", resource: "gold", amount: 30 }, { type: "showMessage", title: "Trasmutazione!", message: "Hai trasmutato 20 pietra in 30 oro." }] },
+                    { id: "lab_event", text: "Piccola Esplosione", class: "action-button danger", hoverText: "Boom! Un esperimento è andato storto.", actions: [{ type: "addResource", resource: "energy", amount: -20 }, { type: "showMessage", title: "Esplosione!", message: "L'esplosione ti ha fatto perdere 20 energia." }] }
+                ]
+            },
+            "location_6": {
+                id: "location_6",
+                title: "Fattoria",
+                image: "locations/farm.jpg",
+                guideText: "Una tranquilla fattoria circondata da campi dorati. Il bestiame pascola pacificamente.",
+                buttons: [
+                    { id: "farm_harvest", text: "Raccogli il Grano", class: "action-button", hoverText: "Aiuta a raccogliere il grano. (-8 Energia, +30 Cibo)", actions: [{ type: "addResource", resource: "energy", amount: -8 }, { type: "addResource", resource: "food", amount: 30 }, { type: "showMessage", title: "Raccolto Abbondante", message: "Hai raccolto 30 unità di cibo." }] },
+                    { id: "farm_sell_food", text: "Vendi Cibo", class: "action-button success", hoverText: "Vendi 50 unità di cibo per 60 Oro.", actions: [{ type: "removeResource", resource: "food", amount: 50 }, { type: "addResource", resource: "gold", amount: 60 }, { type: "showMessage", title: "Cibo Venduto", message: "Hai venduto 50 cibo per 60 oro." }] },
+                    { id: "farm_event", text: "Buon Pasto", class: "action-button success", hoverText: "Il fattore ti offre un pasto ristoratore.", actions: [{ type: "addResource", resource: "energy", amount: 15 }, { type: "showMessage", title: "Pasto Delizioso!", message: "Ti senti rinvigorito! +15 Energia." }] }
+                ]
+            },
+            "location_7": {
+                id: "location_7",
+                title: "Foresta di Seta",
+                image: "locations/silk_forest.jpg",
+                guideText: "Alberi altissimi con foglie argentate. I bachi da seta qui producono un filo preziosissimo.",
+                buttons: [
+                    { id: "silk_gather", text: "Raccogli Seta", class: "action-button", hoverText: "Raccogli con cura i bozzoli di seta. (-5 Energia, +10 Cristalli)", actions: [{ type: "addResource", resource: "energy", amount: -5 }, { type: "addResource", resource: "crystals", amount: 10 }, { type: "showMessage", title: "Seta Raccolta", message: "Hai raccolto 10 unità di seta (cristalli)." }] },
+                    { id: "silk_sell", text: "Vendi Seta", class: "action-button success", hoverText: "Vendi 20 unità di seta per 150 Oro.", actions: [{ type: "removeResource", resource: "crystals", amount: 20 }, { type: "addResource", resource: "gold", amount: 150 }, { type: "showMessage", title: "Seta Venduta", message: "Hai venduto 20 seta per 150 oro." }] },
+                    { id: "silk_event", text: "Ragno Gigante", class: "action-button danger", hoverText: "Un ragno gigante ti spaventa e ti fa cadere parte del raccolto.", actions: [{ type: "addResource", resource: "crystals", amount: -5 }, { type: "showMessage", title: "Che Spavento!", message: "Hai perso 5 unità di seta nella fuga." }] }
+                ]
+            },
+            "location_8": {
+                id: "location_8",
+                title: "Bazar Esotico",
+                image: "locations/exotic_bazaar.jpg",
+                guideText: "Un mercato caotico e colorato, pieno di merci provenienti da terre lontane. Spezie, tappeti e gioielli riempiono le bancarelle.",
+                buttons: [
+                    { id: "bazaar_barter", text: "Baratta", class: "action-button", hoverText: "Baratta un po' del tuo legno per dell'acqua. (-10 Legno, +20 Acqua)", actions: [{ type: "removeResource", resource: "wood", amount: 10 }, { type: "addResource", resource: "water", amount: 20 }, { type: "showMessage", title: "Baratto Riuscito", message: "Hai scambiato 10 legno con 20 acqua." }] },
+                    { id: "bazaar_find", text: "Cerca Occasioni", class: "action-button success", hoverText: "Trovi un mercante distratto e ne approfitti.", actions: [{ type: "addResource", resource: "gold", amount: 40 }, { type: "showMessage", title: "Occasione!", message: "Hai trovato un borsello con 40 Oro!" }] },
+                    { id: "bazaar_event", text: "Borseggiatore", class: "action-button danger", hoverText: "Un ladruncolo ti sfila un po' d'oro dalla tasca.", actions: [{ type: "addResource", resource: "gold", amount: -25 }, { type: "showMessage", title: "Borseggiato!", message: "Ti hanno rubato 25 Oro!" }] }
+                ]
+            },
+            "location_9": {
+                id: "location_9",
+                title: "Fonte Curativa",
+                image: "locations/healing_spring.jpg",
+                guideText: "Una sorgente nascosta le cui acque si dice abbiano proprietà curative. La pace regna sovrana.",
+                buttons: [
+                    { id: "spring_drink", text: "Bevi l'Acqua", class: "action-button", hoverText: "Bevi dalla fonte per recuperare le forze. (+30 Energia)", actions: [{ type: "addResource", resource: "energy", amount: 30 }, { type: "showMessage", title: "Acqua Miracolosa", message: "Ti senti completamente rinvigorito! +30 Energia." }] },
+                    { id: "spring_bottle", text: "Imbottiglia Acqua", class: "action-button success", hoverText: "Riempi le tue borracce. (+50 Acqua)", actions: [{ type: "addResource", resource: "water", amount: 50 }, { type: "showMessage", title: "Scorta d'Acqua", message: "Hai raccolto 50 unità d'acqua." }] },
+                    { id: "spring_event", text: "Spirito della Fonte", class: "action-button success", hoverText: "Uno spirito benevolo ti appare e ti dona dei rubini.", actions: [{ type: "addResource", resource: "rubies", amount: 5 }, { type: "showMessage", title: "Dono dello Spirito", message: "Lo spirito ti ha donato 5 rubini!" }] }
+                ]
+            },
+            "location_10": {
+                id: "location_10",
+                title: "Distretto dei Gioiellieri",
+                image: "locations/jeweler_district.jpg",
+                guideText: "Le vetrine scintillano di gemme preziose. I migliori artigiani del regno lavorano qui.",
+                buttons: [
+                    { id: "jeweler_work", text: "Lavora come Apprendista", class: "action-button", hoverText: "Impara l'arte dell'oreficeria. (-50 Oro, +10 Esperienza)", actions: [{ type: "removeResource", resource: "gold", amount: 50 }, { type: "addExperience", amount: 10 }, { type: "showMessage", title: "Lezione Costosa", message: "Hai pagato per una lezione, guadagnando 10 esperienza." }] },
+                    { id: "jeweler_sell_gems", text: "Vendi Rubini", class: "action-button success", hoverText: "Vendi 10 rubini per la cifra esorbitante di 200 Oro.", actions: [{ type: "removeResource", resource: "rubies", amount: 10 }, { type: "addResource", resource: "gold", amount: 200 }, { type: "showMessage", title: "Rubini Venduti!", message: "Hai venduto 10 rubini per ben 200 Oro!" }] },
+                    { id: "jeweler_event", text: "Gemma Falsa", class: "action-button danger", hoverText: "Cerchi di vendere una gemma, ma si rivela un falso. Che imbarazzo!", actions: [{ type: "addResource", resource: "gold", amount: -10 }, { type: "showMessage", title: "Gemma Falsa!", message: "Hai perso 10 oro per pagare il perito." }] }
                 ]
             }
         };
         
-        // Location corrente del giocatore
-        let currentGameLocation = "village_start";
+        // La location corrente è ora determinata dalla posizione sul tabellone
+        let currentGameLocationId = null; // Verrà impostato all'avvio
         
+        function enableMoveAndDisableActions() {
+            const actionButtons = document.querySelectorAll('.buttons-section .action-button');
+            actionButtons.forEach(button => {
+                if (button.id === 'btn_move') {
+                    button.disabled = false;
+                } else {
+                    button.disabled = true;
+                }
+            });
+            console.log('🔒 Azioni bloccate, 🔑 movimento sbloccato.');
+        }
+
         // Sistema di azioni per i pulsanti
         class GameActionSystem {
             static executeActions(actions) {
                 console.log('🎮 Eseguendo azioni:', actions);
+
+                // Step 1: Check for resource requirements before executing anything
+                for (const action of actions) {
+                    if (action.type === 'removeResource') {
+                        if (Player.get(`resources.${action.resource}`) < action.amount) {
+                            showInfoModal("RISORSE INSUFFICIENTI", `Non hai abbastanza ${action.resource} per completare questa azione.`);
+                            return; // Stop execution if resources are not enough
+                        }
+                    }
+                }
                 
-                let totalMessage = "";
                 let showMessageAction = null;
                 
+                // Step 2: If all checks pass, execute the actions
                 for (const action of actions) {
                     switch (action.type) {
                         case "addResource":
@@ -2291,11 +2327,10 @@
                             console.log(`⭐ Aggiunta esperienza: ${action.amount}`);
                             break;
                             
-                        case "changeLocation":
-                            GameActionSystem.changeLocation(action.locationId);
-                            console.log(`📍 Cambiata location a: ${action.locationId}`);
+                        case "removeResource":
+                            Player.removeResource(action.resource, action.amount);
                             break;
-                            
+
                         case "showMessage":
                             showMessageAction = action;
                             break;
@@ -2325,32 +2360,24 @@
                 
                 // Mostra il messaggio se presente (alla fine)
                 if (showMessageAction) {
+                    // Dopo che il modale si chiude, aggiorna i pulsanti
+                    const originalCallback = showMessageAction.onContinue;
+                    const newCallback = () => {
+                        if (originalCallback) originalCallback();
+                        enableMoveAndDisableActions();
+                    };
                     showInfoModal(
                         showMessageAction.title,
                         showMessageAction.message,
-                        null,
+                        newCallback, // Usa la nuova callback
                         'success'
                     );
-                }
-            }
-            
-            static changeLocation(locationId) {
-                console.log(`🗺️ Cambiando location da ${currentGameLocation} a ${locationId}`);
-                
-                if (gameLocations[locationId]) {
-                    currentGameLocation = locationId;
-                    Player.set('gameData.currentLocation', locationId);
-                    loadGameLocation(locationId);
                 } else {
-                    console.error('❌ Location non trovata:', locationId);
-                    showInfoModal(
-                        "ERRORE",
-                        `Location "${locationId}" non trovata nel database di gioco.`,
-                        null,
-                        'info'
-                    );
+                    // Se non c'è modale, aggiorna subito i pulsanti
+                    enableMoveAndDisableActions();
                 }
             }
+
         }
         
         // Funzione per caricare una location dinamicamente
@@ -2417,13 +2444,13 @@
             buttonsSection.innerHTML = '';
             console.log('🧹 Pulsanti esistenti rimossi');
             
-            // Crea i nuovi pulsanti
+            // Crea i nuovi pulsanti di azione
             buttons.forEach((buttonData, index) => {
-                console.log(`🔘 Creando pulsante ${index + 1}:`, buttonData.text);
+                console.log(`🔘 Creando pulsante di azione ${index + 1}:`, buttonData.text);
                 
                 const button = document.createElement('button');
                 button.id = buttonData.id;
-                button.className = buttonData.class;
+                button.className = buttonData.class + " action-button";
                 button.textContent = buttonData.text;
                 
                 // Aggiunge gli event listener
@@ -2443,13 +2470,62 @@
                 buttonsSection.appendChild(button);
                 console.log(`✅ Pulsante "${buttonData.text}" aggiunto al DOM`);
             });
+
+            // Aggiunge il pulsante MOVE
+            const moveButton = document.createElement('button');
+            moveButton.id = 'btn_move';
+            moveButton.className = 'action-button success'; // Stile diverso per il movimento
+            moveButton.textContent = 'MUOVITI';
+            moveButton.disabled = true; // Disabilitato di default
+            moveButton.addEventListener('click', handleMove);
+            moveButton.addEventListener('mouseenter', () => {
+                if (moveButton.disabled) {
+                    changeNarrativeText('custom', "Devi prima completare un'azione in questa locazione per poterti muovere.");
+                } else {
+                    changeNarrativeText('custom', "Avanza sul tabellone di 1-6 caselle verso una nuova avventura!");
+                }
+            });
+            moveButton.addEventListener('mouseleave', () => {
+                changeNarrativeText('base');
+            });
+            buttonsSection.appendChild(moveButton);
+            console.log('✅ Pulsante MUOVITI aggiunto al DOM');
             
-            console.log(`✅ Tutti i ${buttons.length} pulsanti sono stati creati e aggiunti`);
+            console.log(`✅ Tutti i pulsanti sono stati creati e aggiunti`);
         }
         
         // Variabile per memorizzare il testo base della location corrente
         let currentLocationBaseText = "Caricamento...";
         
+        function handleMove() {
+            console.log('🎲 Il giocatore si muove...');
+
+            // 1. Genera un numero casuale da 1 a 6
+            const roll = Math.floor(Math.random() * 6) + 1;
+
+            // Mostra un modale informativo per il tiro, poi carica la nuova locazione
+            showInfoModal("MOVIMENTO", `Hai tirato un ${roll}! Avanzi di ${roll} caselle.`, () => {
+                // 2. Calcola la nuova posizione
+                let currentPosition = Player.get('gameData.currentBoardPosition');
+                let newPosition = currentPosition + roll;
+
+                // 3. Gestisci il superamento del tabellone (loop)
+                if (newPosition >= gameBoard.length) {
+                    newPosition = newPosition % gameBoard.length;
+                    console.log(`Tabellone completato! Torni alla posizione: ${newPosition}`);
+                }
+
+                // 4. Salva la nuova posizione
+                Player.set('gameData.currentBoardPosition', newPosition);
+                Player.saveData(true); // Forza salvataggio
+
+                // 5. Carica la nuova location
+                const newLocationId = gameBoard[newPosition];
+                console.log(`Nuova posizione: ${newPosition}, Nuova location: ${newLocationId}`);
+                loadGameLocation(newLocationId);
+            });
+        }
+
         // Testi dinamici per il box narrativo (aggiornato)
         const narrativeTexts = {
             base: () => currentLocationBaseText,
@@ -2462,18 +2538,17 @@
         function initializeGameUI() {
             console.log('🎮 Inizializzando Game UI...');
             
-            // Carica la location di default o quella salvata
-            const savedLocation = Player.get('gameData.currentLocation') || 'village_start';
-            console.log('📍 Location da caricare:', savedLocation);
-            currentGameLocation = savedLocation;
+            // Carica la location in base alla posizione sul tabellone
+            const boardPosition = Player.get('gameData.currentBoardPosition');
+            currentGameLocationId = gameBoard[boardPosition];
+            console.log(`📍 Posizione sul tabellone: ${boardPosition}, Location da caricare: ${currentGameLocationId}`);
             
             // Carica la location corrente
-            const loadSuccess = loadGameLocation(currentGameLocation);
+            const loadSuccess = loadGameLocation(currentGameLocationId);
             if (!loadSuccess) {
-                console.warn('⚠️ Fallback alla location di default...');
-                currentGameLocation = 'village_start';
-                Player.set('gameData.currentLocation', 'village_start');
-                loadGameLocation('village_start');
+                console.error(`❌ Fallimento critico: impossibile caricare la location ${currentGameLocationId}`);
+                showInfoModal("ERRORE CRITICO", "Impossibile caricare la locazione di gioco. Resettare i dati?");
+                // In un gioco reale, qui ci sarebbe una logica di recupero
             }
             
             // Aggiorna le risorse
@@ -2490,7 +2565,7 @@
             // Setup event listener per il footer
             setupGameUIFooterEventListeners();
             
-            console.log('✅ Game UI inizializzato con location:', currentGameLocation);
+            console.log('✅ Game UI inizializzato con location:', currentGameLocationId);
         }
 
         // Funzione per cambiare il testo narrativo (aggiornata)
