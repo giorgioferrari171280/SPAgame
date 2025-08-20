@@ -628,7 +628,7 @@
             backdrop-filter: blur(5px);
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
             gap: 2%;
         }
 
@@ -1255,73 +1255,95 @@
 
                     <!-- Colonna destra - UI Resources e Pulsanti + Testo -->
                     <div class="right-column-game">
-                        <!-- Sezione Resources - Grid 4x2 -->
+                        <!-- Sezione Resources - Grid 4x3 -->
                         <div class="resources-section">
+                            <!-- Row 1 -->
                             <div class="resource-item">
-                                <div class="resource-icon placeholder" id="rubies-icon">💎</div>
+                                <div class="resource-icon placeholder" id="shillings-icon">💷</div>
                                 <div class="resource-info">
-                                    <div class="resource-label">Rubini</div>
-                                    <div class="resource-value" id="rubies-value">0</div>
+                                    <div class="resource-label">Scellini</div>
+                                    <div class="resource-value" id="shillings-value">0</div>
                                 </div>
                             </div>
-                            
                             <div class="resource-item">
-                                <div class="resource-icon placeholder" id="gold-icon">🪙</div>
+                                <div class="resource-icon placeholder" id="workers-icon">👷</div>
                                 <div class="resource-info">
-                                    <div class="resource-label">Oro</div>
-                                    <div class="resource-value" id="gold-value">0</div>
+                                    <div class="resource-label">Lavoratori</div>
+                                    <div class="resource-value" id="workers-value">0</div>
                                 </div>
                             </div>
-                            
                             <div class="resource-item">
-                                <div class="resource-icon" id="energy-icon">
-                                    <img src="coal.jpg" alt="Energia">
-                                </div>
+                                <div class="resource-icon placeholder" id="wool-icon">🐑</div>
                                 <div class="resource-info">
-                                    <div class="resource-label">Energia</div>
-                                    <div class="resource-value" id="energy-value">0/100</div>
+                                    <div class="resource-label">Lana</div>
+                                    <div class="resource-value" id="wool-value">0</div>
                                 </div>
                             </div>
-
                             <div class="resource-item">
-                                <div class="resource-icon" id="crystals-icon">
-                                    <img src="silk.jpg" alt="Seta">
-                                </div>
+                                <div class="resource-icon placeholder" id="whisky-icon">🥃</div>
                                 <div class="resource-info">
-                                    <div class="resource-label">Seta</div>
-                                    <div class="resource-value" id="crystals-value">0</div>
+                                    <div class="resource-label">Whisky</div>
+                                    <div class="resource-value" id="whisky-value">0</div>
                                 </div>
                             </div>
 
+                            <!-- Row 2 -->
                             <div class="resource-item">
-                                <div class="resource-icon placeholder" id="wood-icon">🪵</div>
+                                <div class="resource-icon placeholder" id="peat-icon">🧱</div>
                                 <div class="resource-info">
-                                    <div class="resource-label">Legno</div>
-                                    <div class="resource-value" id="wood-value">0</div>
+                                    <div class="resource-label">Torba</div>
+                                    <div class="resource-value" id="peat-value">0</div>
+                                </div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="coal-icon">🔥</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Carbone</div>
+                                    <div class="resource-value" id="coal-value">0</div>
+                                </div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="iron-icon">🔩</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Ferro</div>
+                                    <div class="resource-value" id="iron-value">0</div>
+                                </div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="fish-icon">🐟</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Pesce</div>
+                                    <div class="resource-value" id="fish-value">0</div>
                                 </div>
                             </div>
 
+                            <!-- Row 3 -->
                             <div class="resource-item">
-                                <div class="resource-icon placeholder" id="stone-icon">🪨</div>
+                                <div class="resource-icon placeholder" id="lumber-icon">🪵</div>
                                 <div class="resource-info">
-                                    <div class="resource-label">Pietra</div>
-                                    <div class="resource-value" id="stone-value">0</div>
+                                    <div class="resource-label">Legname</div>
+                                    <div class="resource-value" id="lumber-value">0</div>
                                 </div>
                             </div>
-
                             <div class="resource-item">
-                                <div class="resource-icon placeholder" id="food-icon">🍔</div>
+                                <div class="resource-icon placeholder" id="oats-icon">🌾</div>
                                 <div class="resource-info">
-                                    <div class="resource-label">Cibo</div>
-                                    <div class="resource-value" id="food-value">0</div>
+                                    <div class="resource-label">Avena</div>
+                                    <div class="resource-value" id="oats-value">0</div>
                                 </div>
                             </div>
-
                             <div class="resource-item">
-                                <div class="resource-icon placeholder" id="water-icon">💧</div>
+                                <div class="resource-icon placeholder" id="grain-icon">🌾</div>
                                 <div class="resource-info">
-                                    <div class="resource-label">Acqua</div>
-                                    <div class="resource-value" id="water-value">0</div>
+                                    <div class="resource-label">Grano</div>
+                                    <div class="resource-value" id="grain-value">0</div>
+                                </div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="cows-icon">🐄</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Mucche</div>
+                                    <div class="resource-value" id="cows-value">0</div>
                                 </div>
                             </div>
                         </div>
@@ -1952,16 +1974,18 @@
                     
                     // === RISORSE ===
                     resources: {
-                        rubies: 0,
-                        gold: 0,
-                        energy: 0,
-                        maxEnergy: 100,
+                        shillings: 100,
+                        workers: 2,
+                        wool: 0,
+                        whisky: 0,
+                        peat: 0,
                         coal: 0,
-                        wood: 0,
-                        stone: 0,
-                        food: 0,
-                        water: 0,
-                        crystals: 0
+                        iron: 0,
+                        fish: 0,
+                        lumber: 0,
+                        oats: 0,
+                        grain: 50,
+                        cows: 2
                     },
                     
                     // === INVENTARIO ===
@@ -2281,112 +2305,112 @@
         const gameLocations = {
             "location_1": {
                 id: "location_1",
-                title: "Mercato del Legname",
-                image: "locations/lumber_market.jpg",
-                guideText: "Sei al Mercato del Legname. Qui i boscaioli vendono il frutto del loro duro lavoro. L'aria profuma di resina e legno appena tagliato.",
+                title: "Fattoria",
+                image: "locations/farm.jpg",
+                guideText: "La tua fattoria. Qui puoi coltivare grano e avena, e prenderti cura delle mucche.",
                 buttons: [
-                    { id: "lumber_chop", text: "Taglia Legna", class: "action-button", hoverText: "Passa del tempo a tagliare legna. (-10 Energia, +25 Legno)", actions: [{ type: "addResource", resource: "energy", amount: -10 }, { type: "addResource", resource: "wood", amount: 25 }, { type: "showMessage", title: "Legna Raccolta", message: "Hai raccolto 25 unità di legno." }] },
-                    { id: "lumber_sell", text: "Vendi Legno", class: "action-button success", hoverText: "Vendi 50 unità di legno per 75 Oro.", actions: [{ type: "removeResource", resource: "wood", amount: 50 }, { type: "addResource", resource: "gold", amount: 75 }, { type: "showMessage", title: "Legno Venduto", message: "Hai venduto 50 legno per 75 oro." }] },
-                    { id: "lumber_event", text: "Inciampo", class: "action-button danger", hoverText: "Ops! Hai inciampato su una radice e hai perso un po' di energia.", actions: [{ type: "addResource", resource: "energy", amount: -5 }, { type: "showMessage", title: "Sei Inciampato!", message: "Che sfortuna! Hai perso 5 energia." }] }
+                    { id: "farm_grain", text: "Coltiva Grano", class: "action-button", hoverText: "Usa un lavoratore per produrre 20 grano.", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "grain", amount: 20 }, { type: "showMessage", title: "Grano Raccolto", message: "Hai prodotto 20 unità di grano." }] },
+                    { id: "farm_oats", text: "Coltiva Avena", class: "action-button", hoverText: "Usa un lavoratore per produrre 20 avena.", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "oats", amount: 20 }, { type: "showMessage", title: "Avena Raccolta", message: "Hai prodotto 20 unità di avena." }] },
+                    { id: "farm_cows", text: "Vendi Latte", class: "action-button", hoverText: "Guadagna 15 scellini dal latte delle tue mucche.", actions: [{ type: "addResource", resource: "shillings", amount: 15 }, { type: "showMessage", title: "Latte Venduto", message: "Hai guadagnato 15 scellini." }] }
                 ]
             },
             "location_2": {
                 id: "location_2",
-                title: "Cava di Pietra",
-                image: "locations/stone_quarry.jpg",
-                guideText: "La cava di pietra è un luogo polveroso e rumoroso. I minatori spaccano la roccia sotto il sole cocente.",
+                title: "Mercato",
+                image: "locations/merchant_guild.jpg",
+                guideText: "Il mercato cittadino. Vendi i tuoi beni e assumi nuovi lavoratori.",
                 buttons: [
-                    { id: "quarry_mine", text: "Estrai Pietra", class: "action-button", hoverText: "Lavora nella cava per estrarre pietra. (-15 Energia, +30 Pietra)", actions: [{ type: "addResource", resource: "energy", amount: -15 }, { type: "addResource", resource: "stone", amount: 30 }, { type: "showMessage", title: "Pietra Estratta", message: "Hai estratto 30 unità di pietra." }] },
-                    { id: "quarry_sell", text: "Vendi Pietra", class: "action-button success", hoverText: "Vendi 50 unità di pietra per 80 Oro.", actions: [{ type: "removeResource", resource: "stone", amount: 50 }, { type: "addResource", resource: "gold", amount: 80 }, { type: "showMessage", title: "Pietra Venduta", message: "Hai venduto 50 pietra per 80 oro." }] },
-                    { id: "quarry_event", text: "Vena d'Oro", class: "action-button success", hoverText: "Fortunato! Hai trovato una piccola vena d'oro mentre estraevi.", actions: [{ type: "addResource", resource: "gold", amount: 25 }, { type: "showMessage", title: "Vena d'Oro!", message: "Hai trovato 25 oro extra!" }] }
+                    { id: "market_sell_produce", text: "Vendi Raccolti", class: "action-button success", hoverText: "Vendi 20 grano e 20 avena per 30 scellini.", actions: [{ type: "removeResource", resource: "grain", amount: 20 }, { type: "removeResource", resource: "oats", amount: 20 }, { type: "addResource", resource: "shillings", amount: 30 }, { type: "showMessage", title: "Raccolti Venduti", message: "Hai venduto grano e avena per 30 scellini." }] },
+                    { id: "market_buy_cow", text: "Compra Mucca", class: "action-button", hoverText: "Compra una mucca per 50 scellini.", actions: [{ type: "removeResource", resource: "shillings", amount: 50 }, { type: "addResource", resource: "cows", amount: 1 }, { type: "showMessage", title: "Mucche Comprate", message: "Hai una nuova mucca nella stalla." }] },
+                    { id: "market_hire_worker", text: "Assumi Lavoratore", class: "action-button", hoverText: "Assumi un nuovo lavoratore per 20 scellini.", actions: [{ type: "removeResource", resource: "shillings", amount: 20 }, { type: "addResource", resource: "workers", amount: 1 }, { type: "showMessage", title: "Lavoratore Assunto", message: "Un nuovo lavoratore si unisce alla tua causa." }] }
                 ]
             },
             "location_3": {
                 id: "location_3",
-                title: "Gilda dei Mercanti",
-                image: "locations/merchant_guild.jpg",
-                guideText: "La Gilda dei Mercanti è un edificio opulento, pieno di commercianti che discutono di affari e profitti.",
+                title: "Segheria",
+                image: "locations/lumber_market.jpg",
+                guideText: "La segheria ai margini della foresta. L'aria profuma di legno tagliato.",
                 buttons: [
-                    { id: "guild_trade", text: "Commercia", class: "action-button", hoverText: "Fai un affare vantaggioso. (-50 Oro, +10 Rubini)", actions: [{ type: "removeResource", resource: "gold", amount: 50 }, { type: "addResource", resource: "rubies", amount: 10 }, { type: "showMessage", title: "Affare Fatto", message: "Hai scambiato 50 Oro per 10 Rubini." }] },
-                    { id: "guild_invest", text: "Investi", class: "action-button success", hoverText: "Investi 100 Oro in una spedizione commerciale.", actions: [{ type: "removeResource", resource: "gold", amount: 100 }, { type: "showMessage", title: "Investimento", message: "Hai investito 100 Oro. Speriamo bene!" }] },
-                    { id: "guild_event", text: "Tassa a Sorpresa", class: "action-button danger", hoverText: "La gilda impone una tassa inaspettata a tutti i presenti.", actions: [{ type: "addResource", resource: "gold", amount: -30 }, { type: "showMessage", title: "Tassa Inaspettata", message: "Hai dovuto pagare una tassa di 30 Oro." }] }
+                    { id: "lumber_cut", text: "Taglia Legname", class: "action-button", hoverText: "Usa un lavoratore per produrre 30 legname.", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "lumber", amount: 30 }, { type: "showMessage", title: "Legname Raccolto", message: "Hai prodotto 30 unità di legname." }] },
+                    { id: "lumber_sell", text: "Vendi Legname", class: "action-button success", hoverText: "Vendi 30 legname per 25 scellini.", actions: [{ type: "removeResource", resource: "lumber", amount: 30 }, { type: "addResource", resource: "shillings", amount: 25 }, { type: "showMessage", title: "Legname Venduto", message: "Hai venduto 30 legname per 25 scellini." }] },
+                    { id: "lumber_event", text: "Attrezzi Rotti", class: "action-button danger", hoverText: "Devi riparare gli attrezzi.", actions: [{ type: "removeResource", resource: "shillings", amount: 5 }, { type: "showMessage", title: "Riparazione", message: "Hai speso 5 scellini per riparare un'ascia." }] }
                 ]
             },
             "location_4": {
                 id: "location_4",
-                title: "Miniera di Carbone",
+                title: "Miniera",
                 image: "locations/coal_mine.jpg",
-                guideText: "L'aria è pesante di polvere di carbone. Le gallerie si addentrano nel cuore della montagna.",
+                guideText: "Una miniera scura e profonda. Ricca di carbone e ferro.",
                 buttons: [
-                    { id: "coal_mine", text: "Estrai Carbone", class: "action-button", hoverText: "Scava per il carbone. (-12 Energia, +20 Carbone)", actions: [{ type: "addResource", resource: "energy", amount: -12 }, { type: "addResource", resource: "coal", amount: 20 }, { type: "showMessage", title: "Carbone Estratto", message: "Hai estratto 20 unità di carbone." }] },
-                    { id: "coal_sell", text: "Vendi Carbone", class: "action-button success", hoverText: "Vendi 40 unità di carbone per 100 Oro.", actions: [{ type: "removeResource", resource: "coal", amount: 40 }, { type: "addResource", resource: "gold", amount: 100 }, { type: "showMessage", title: "Carbone Venduto", message: "Hai venduto 40 carbone per 100 oro." }] },
-                    { id: "coal_event", text: "Fuga di Gas", class: "action-button danger", hoverText: "Una piccola fuga di gas ti costringe a una ritirata frettolosa.", actions: [{ type: "addResource", resource: "energy", amount: -10 }, { type: "showMessage", title: "Fuga di Gas!", message: "Sei dovuto scappare, perdendo 10 energia." }] }
+                    { id: "mine_coal", text: "Estrai Carbone", class: "action-button", hoverText: "Usa un lavoratore per estrarre 20 carbone.", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "coal", amount: 20 }, { type: "showMessage", title: "Carbone Estratto", message: "Hai estratto 20 carbone." }] },
+                    { id: "mine_iron", text: "Estrai Ferro", class: "action-button", hoverText: "Usa due lavoratori per estrarre 10 ferro.", actions: [{ type: "removeResource", resource: "workers", amount: 2 }, { type: "addResource", resource: "iron", amount: 10 }, { type: "showMessage", title: "Ferro Estratto", message: "Hai estratto 10 ferro." }] },
+                    { id: "mine_sell", text: "Vendi Minerali", class: "action-button success", hoverText: "Vendi 20 carbone e 10 ferro per 80 scellini.", actions: [{ type: "removeResource", resource: "coal", amount: 20 }, { type: "removeResource", resource: "iron", amount: 10 }, { type: "addResource", resource: "shillings", amount: 80 }, { type: "showMessage", title: "Minerali Venduti", message: "Hai venduto carbone e ferro per 80 scellini." }] }
                 ]
             },
             "location_5": {
                 id: "location_5",
-                title: "Laboratorio Alchemico",
-                image: "locations/alchemist_lab.jpg",
-                guideText: "Strani fumi e odori riempiono il laboratorio. L'alchimista è immerso nei suoi esperimenti.",
+                title: "Torbiera",
+                image: "locations/healing_spring.jpg",
+                guideText: "Una vasta e umida torbiera. La torba è un combustibile essenziale.",
                 buttons: [
-                    { id: "lab_assist", text: "Assisti l'Alchimista", class: "action-button", hoverText: "Aiuta con un esperimento. (-5 Rubini, +1 Pozione)", actions: [{ type: "removeResource", resource: "rubies", amount: 5 }, { type: "addItem", itemId: "potion_health", quantity: 1 }, { type: "showMessage", title: "Esperimento Riuscito", message: "Hai creato una pozione della salute!" }] },
-                    { id: "lab_transmute", text: "Trasmuta Pietra", class: "action-button success", hoverText: "Prova a trasmutare la pietra in oro. (-20 Pietra, +30 Oro)", actions: [{ type: "removeResource", resource: "stone", amount: 20 }, { type: "addResource", resource: "gold", amount: 30 }, { type: "showMessage", title: "Trasmutazione!", message: "Hai trasmutato 20 pietra in 30 oro." }] },
-                    { id: "lab_event", text: "Piccola Esplosione", class: "action-button danger", hoverText: "Boom! Un esperimento è andato storto.", actions: [{ type: "addResource", resource: "energy", amount: -20 }, { type: "showMessage", title: "Esplosione!", message: "L'esplosione ti ha fatto perdere 20 energia." }] }
+                    { id: "peat_cut", text: "Taglia Torba", class: "action-button", hoverText: "Usa un lavoratore per tagliare 40 torba.", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "peat", amount: 40 }, { type: "showMessage", title: "Torba Tagliata", message: "Hai raccolto 40 torba." }] },
+                    { id: "peat_sell", text: "Vendi Torba", class: "action-button success", hoverText: "Vendi 40 torba per 20 scellini.", actions: [{ type: "removeResource", resource: "peat", amount: 40 }, { type: "addResource", resource: "shillings", amount: 20 }, { type: "showMessage", title: "Torba Venduta", message: "Hai venduto 40 torba per 20 scellini." }] },
+                    { id: "peat_event", text: "Pioggia", class: "action-button danger", hoverText: "La pioggia torrenziale rovina parte del lavoro.", actions: [{ type: "removeResource", resource: "peat", amount: 10, check: false }, { type: "showMessage", title: "Pioggia!", message: "La pioggia ha rovinato 10 unità di torba." }] }
                 ]
             },
             "location_6": {
                 id: "location_6",
-                title: "Fattoria",
-                image: "locations/farm.jpg",
-                guideText: "Una tranquilla fattoria circondata da campi dorati. Il bestiame pascola pacificamente.",
+                title: "Villaggio di Pescatori",
+                image: "locations/exotic_bazaar.jpg",
+                guideText: "Un piccolo villaggio sulla costa. L'aria odora di sale e pesce fresco.",
                 buttons: [
-                    { id: "farm_harvest", text: "Raccogli il Grano", class: "action-button", hoverText: "Aiuta a raccogliere il grano. (-8 Energia, +30 Cibo)", actions: [{ type: "addResource", resource: "energy", amount: -8 }, { type: "addResource", resource: "food", amount: 30 }, { type: "showMessage", title: "Raccolto Abbondante", message: "Hai raccolto 30 unità di cibo." }] },
-                    { id: "farm_sell_food", text: "Vendi Cibo", class: "action-button success", hoverText: "Vendi 50 unità di cibo per 60 Oro.", actions: [{ type: "removeResource", resource: "food", amount: 50 }, { type: "addResource", resource: "gold", amount: 60 }, { type: "showMessage", title: "Cibo Venduto", message: "Hai venduto 50 cibo per 60 oro." }] },
-                    { id: "farm_event", text: "Buon Pasto", class: "action-button success", hoverText: "Il fattore ti offre un pasto ristoratore.", actions: [{ type: "addResource", resource: "energy", amount: 15 }, { type: "showMessage", title: "Pasto Delizioso!", message: "Ti senti rinvigorito! +15 Energia." }] }
+                    { id: "fish_catch", text: "Pesca", class: "action-button", hoverText: "Manda un lavoratore a pescare. (+30 Pesce)", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "fish", amount: 30 }, { type: "showMessage", title: "Pesca Abbondante", message: "Hai pescato 30 pesci." }] },
+                    { id: "fish_sell", text: "Vendi Pesce", class: "action-button success", hoverText: "Vendi 30 pesce per 20 scellini.", actions: [{ type: "removeResource", resource: "fish", amount: 30 }, { type: "addResource", resource: "shillings", amount: 20 }, { type: "showMessage", title: "Pesce Venduto", message: "Hai venduto il pesce per 20 scellini." }] },
+                    { id: "fish_event", text: "Tempesta", class: "action-button danger", hoverText: "Una tempesta improvvisa impedisce di uscire in mare.", actions: [{ type: "showMessage", title: "Tempesta!", message: "Nessuno può pescare oggi." }] }
                 ]
             },
             "location_7": {
                 id: "location_7",
-                title: "Foresta di Seta",
-                image: "locations/silk_forest.jpg",
-                guideText: "Alberi altissimi con foglie argentate. I bachi da seta qui producono un filo preziosissimo.",
+                title: "Pascolo delle Pecore",
+                image: "locations/stone_quarry.jpg",
+                guideText: "Un vasto pascolo dove le pecore brucano l'erba. Qui si produce la lana.",
                 buttons: [
-                    { id: "silk_gather", text: "Raccogli Seta", class: "action-button", hoverText: "Raccogli con cura i bozzoli di seta. (-5 Energia, +10 Cristalli)", actions: [{ type: "addResource", resource: "energy", amount: -5 }, { type: "addResource", resource: "crystals", amount: 10 }, { type: "showMessage", title: "Seta Raccolta", message: "Hai raccolto 10 unità di seta (cristalli)." }] },
-                    { id: "silk_sell", text: "Vendi Seta", class: "action-button success", hoverText: "Vendi 20 unità di seta per 150 Oro.", actions: [{ type: "removeResource", resource: "crystals", amount: 20 }, { type: "addResource", resource: "gold", amount: 150 }, { type: "showMessage", title: "Seta Venduta", message: "Hai venduto 20 seta per 150 oro." }] },
-                    { id: "silk_event", text: "Ragno Gigante", class: "action-button danger", hoverText: "Un ragno gigante ti spaventa e ti fa cadere parte del raccolto.", actions: [{ type: "addResource", resource: "crystals", amount: -5 }, { type: "showMessage", title: "Che Spavento!", message: "Hai perso 5 unità di seta nella fuga." }] }
+                    { id: "wool_shear", text: "Tosa le Pecore", class: "action-button", hoverText: "Usa un lavoratore per tosare le pecore. (+20 Lana)", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "wool", amount: 20 }, { type: "showMessage", title: "Lana Raccolta", message: "Hai prodotto 20 unità di lana." }] },
+                    { id: "wool_sell", text: "Vendi Lana", class: "action-button success", hoverText: "Vendi 20 lana per 30 scellini.", actions: [{ type: "removeResource", resource: "wool", amount: 20 }, { type: "addResource", resource: "shillings", amount: 30 }, { type: "showMessage", title: "Lana Venduta", message: "Hai venduto la lana per 30 scellini." }] },
+                    { id: "wool_event", text: "Fuga di Pecore", class: "action-button danger", hoverText: "Alcune pecore sono scappate dal recinto.", actions: [{ type: "showMessage", title: "Pecore in Fuga!", message: "Perdi tempo a recuperarle." }] }
                 ]
             },
             "location_8": {
                 id: "location_8",
-                title: "Bazar Esotico",
-                image: "locations/exotic_bazaar.jpg",
-                guideText: "Un mercato caotico e colorato, pieno di merci provenienti da terre lontane. Spezie, tappeti e gioielli riempiono le bancarelle.",
+                title: "Distilleria",
+                image: "locations/alchemist_lab.jpg",
+                guideText: "La distilleria locale. Qui il grano e la torba diventano oro liquido: il whisky.",
                 buttons: [
-                    { id: "bazaar_barter", text: "Baratta", class: "action-button", hoverText: "Baratta un po' del tuo legno per dell'acqua. (-10 Legno, +20 Acqua)", actions: [{ type: "removeResource", resource: "wood", amount: 10 }, { type: "addResource", resource: "water", amount: 20 }, { type: "showMessage", title: "Baratto Riuscito", message: "Hai scambiato 10 legno con 20 acqua." }] },
-                    { id: "bazaar_find", text: "Cerca Occasioni", class: "action-button success", hoverText: "Trovi un mercante distratto e ne approfitti.", actions: [{ type: "addResource", resource: "gold", amount: 40 }, { type: "showMessage", title: "Occasione!", message: "Hai trovato un borsello con 40 Oro!" }] },
-                    { id: "bazaar_event", text: "Borseggiatore", class: "action-button danger", hoverText: "Un ladruncolo ti sfila un po' d'oro dalla tasca.", actions: [{ type: "addResource", resource: "gold", amount: -25 }, { type: "showMessage", title: "Borseggiato!", message: "Ti hanno rubato 25 Oro!" }] }
+                    { id: "distill_whisky", text: "Produci Whisky", class: "action-button", hoverText: "Usa grano, torba e un lavoratore per produrre 5 whisky.", actions: [{ type: "removeResource", resource: "grain", amount: 20 }, { type: "removeResource", resource: "peat", amount: 10 }, { type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "whisky", amount: 5 }, { type: "showMessage", title: "Whisky Prodotto", message: "Hai prodotto 5 unità di whisky." }] },
+                    { id: "distill_sell", text: "Vendi Whisky", class: "action-button success", hoverText: "Vendi 5 whisky per 100 scellini.", actions: [{ type: "removeResource", resource: "whisky", amount: 5 }, { type: "addResource", resource: "shillings", amount: 100 }, { type: "showMessage", title: "Whisky Venduto", message: "Hai venduto il whisky per 100 scellini!" }] },
+                    { id: "distill_taste", text: "Controllo Qualità", class: "action-button", hoverText: "Assaggia il prodotto per assicurarti che sia perfetto.", actions: [{ type: "removeResource", resource: "whisky", amount: 1 }, { type: "showMessage", title: "Salute!", message: "Un sorso per la scienza!" }] }
                 ]
             },
             "location_9": {
                 id: "location_9",
-                title: "Fonte Curativa",
-                image: "locations/healing_spring.jpg",
-                guideText: "Una sorgente nascosta le cui acque si dice abbiano proprietà curative. La pace regna sovrana.",
+                title: "Porto",
+                image: "locations/jeweler_district.jpg",
+                guideText: "Il porto commerciale. Esporta grandi quantità di merci per un grande profitto.",
                 buttons: [
-                    { id: "spring_drink", text: "Bevi l'Acqua", class: "action-button", hoverText: "Bevi dalla fonte per recuperare le forze. (+30 Energia)", actions: [{ type: "addResource", resource: "energy", amount: 30 }, { type: "showMessage", title: "Acqua Miracolosa", message: "Ti senti completamente rinvigorito! +30 Energia." }] },
-                    { id: "spring_bottle", text: "Imbottiglia Acqua", class: "action-button success", hoverText: "Riempi le tue borracce. (+50 Acqua)", actions: [{ type: "addResource", resource: "water", amount: 50 }, { type: "showMessage", title: "Scorta d'Acqua", message: "Hai raccolto 50 unità d'acqua." }] },
-                    { id: "spring_event", text: "Spirito della Fonte", class: "action-button success", hoverText: "Uno spirito benevolo ti appare e ti dona dei rubini.", actions: [{ type: "addResource", resource: "rubies", amount: 5 }, { type: "showMessage", title: "Dono dello Spirito", message: "Lo spirito ti ha donato 5 rubini!" }] }
+                    { id: "port_export_lumber", text: "Esporta Legname", class: "action-button success", hoverText: "Esporta 50 legname e 20 ferro per 150 scellini.", actions: [{ type: "removeResource", resource: "lumber", amount: 50 }, { type: "removeResource", resource: "iron", amount: 20 }, { type: "addResource", resource: "shillings", amount: 150 }, { type: "showMessage", title: "Esportazione Riuscita", message: "Hai guadagnato 150 scellini." }] },
+                    { id: "port_export_farm", text: "Esporta Prodotti Agricoli", class: "action-button success", hoverText: "Esporta 50 grano, 50 avena e 20 lana per 120 scellini.", actions: [{ type: "removeResource", resource: "grain", amount: 50 }, { type: "removeResource", resource: "oats", amount: 50 }, { type: "removeResource", resource: "wool", amount: 20 }, { type: "addResource", resource: "shillings", amount: 120 }, { type: "showMessage", title: "Esportazione Riuscita", message: "Hai guadagnato 120 scellini." }] },
+                    { id: "port_export_fuel", text: "Esporta Combustibili", class: "action-button success", hoverText: "Esporta 50 pesce e 50 carbone per 100 scellini.", actions: [{ type: "removeResource", resource: "fish", amount: 50 }, { type: "removeResource", resource: "coal", amount: 50 }, { type: "addResource", resource: "shillings", amount: 100 }, { type: "showMessage", title: "Esportazione Riuscita", message: "Hai guadagnato 100 scellini." }] }
                 ]
             },
             "location_10": {
                 id: "location_10",
-                title: "Distretto dei Gioiellieri",
-                image: "locations/jeweler_district.jpg",
-                guideText: "Le vetrine scintillano di gemme preziose. I migliori artigiani del regno lavorano qui.",
+                title: "Città",
+                image: "locations/main_menu_bg.png",
+                guideText: "Il centro della città. Qui si trovano il pub e gli uffici.",
                 buttons: [
-                    { id: "jeweler_work", text: "Lavora come Apprendista", class: "action-button", hoverText: "Impara l'arte dell'oreficeria. (-50 Oro, +10 Esperienza)", actions: [{ type: "removeResource", resource: "gold", amount: 50 }, { type: "addExperience", amount: 10 }, { type: "showMessage", title: "Lezione Costosa", message: "Hai pagato per una lezione, guadagnando 10 esperienza." }] },
-                    { id: "jeweler_sell_gems", text: "Vendi Rubini", class: "action-button success", hoverText: "Vendi 10 rubini per la cifra esorbitante di 200 Oro.", actions: [{ type: "removeResource", resource: "rubies", amount: 10 }, { type: "addResource", resource: "gold", amount: 200 }, { type: "showMessage", title: "Rubini Venduti!", message: "Hai venduto 10 rubini per ben 200 Oro!" }] },
-                    { id: "jeweler_event", text: "Gemma Falsa", class: "action-button danger", hoverText: "Cerchi di vendere una gemma, ma si rivela un falso. Che imbarazzo!", actions: [{ type: "addResource", resource: "gold", amount: -10 }, { type: "showMessage", title: "Gemma Falsa!", message: "Hai perso 10 oro per pagare il perito." }] }
+                    { id: "town_taxes", text: "Paga Tasse", class: "action-button danger", hoverText: "Paga 20 scellini di tasse.", actions: [{ type: "removeResource", resource: "shillings", amount: 20 }, { type: "showMessage", title: "Tasse Pagate", message: "Hai pagato 20 scellini di tasse." }] },
+                    { id: "town_pub", text: "Visita il Pub", class: "action-button", hoverText: "Spendi 5 scellini per una birra e quattro chiacchiere.", actions: [{ type: "removeResource", resource: "shillings", amount: 5 }, { type: "showMessage", title: "Al Pub", message: "Ti sei preso una pausa." }] },
+                    { id: "town_rest", text: "Riposa", class: "action-button", hoverText: "Passi la notte in locanda per recuperare le energie.", actions: [{ type: "showMessage", title: "Ben Riposato", message: "I tuoi lavoratori sono più produttivi." }] }
                 ]
             }
         };
@@ -2735,23 +2759,31 @@
 
         // Funzione per aggiornare i valori delle risorse nell'UI
         function updateResourcesDisplay() {
-            const rubiesElement = document.getElementById('rubies-value');
-            const goldElement = document.getElementById('gold-value');
-            const energyElement = document.getElementById('energy-value');
-            const crystalsElement = document.getElementById('crystals-value');
-            const woodElement = document.getElementById('wood-value');
-            const stoneElement = document.getElementById('stone-value');
-            const foodElement = document.getElementById('food-value');
-            const waterElement = document.getElementById('water-value');
-            
-            if (rubiesElement) rubiesElement.textContent = Player.get('resources.rubies').toLocaleString();
-            if (goldElement) goldElement.textContent = Player.get('resources.gold').toLocaleString();
-            if (energyElement) energyElement.textContent = `${Player.get('resources.energy')}/${Player.get('resources.maxEnergy')}`;
-            if (crystalsElement) crystalsElement.textContent = (Player.get('resources.crystals') || 0).toLocaleString();
-            if (woodElement) woodElement.textContent = Player.get('resources.wood').toLocaleString();
-            if (stoneElement) stoneElement.textContent = Player.get('resources.stone').toLocaleString();
-            if (foodElement) foodElement.textContent = Player.get('resources.food').toLocaleString();
-            if (waterElement) waterElement.textContent = Player.get('resources.water').toLocaleString();
+            const shillingsElement = document.getElementById('shillings-value');
+            const workersElement = document.getElementById('workers-value');
+            const woolElement = document.getElementById('wool-value');
+            const whiskyElement = document.getElementById('whisky-value');
+            const peatElement = document.getElementById('peat-value');
+            const coalElement = document.getElementById('coal-value');
+            const ironElement = document.getElementById('iron-value');
+            const fishElement = document.getElementById('fish-value');
+            const lumberElement = document.getElementById('lumber-value');
+            const oatsElement = document.getElementById('oats-value');
+            const grainElement = document.getElementById('grain-value');
+            const cowsElement = document.getElementById('cows-value');
+
+            if (shillingsElement) shillingsElement.textContent = (Player.get('resources.shillings') || 0).toLocaleString();
+            if (workersElement) workersElement.textContent = (Player.get('resources.workers') || 0).toLocaleString();
+            if (woolElement) woolElement.textContent = (Player.get('resources.wool') || 0).toLocaleString();
+            if (whiskyElement) whiskyElement.textContent = (Player.get('resources.whisky') || 0).toLocaleString();
+            if (peatElement) peatElement.textContent = (Player.get('resources.peat') || 0).toLocaleString();
+            if (coalElement) coalElement.textContent = (Player.get('resources.coal') || 0).toLocaleString();
+            if (ironElement) ironElement.textContent = (Player.get('resources.iron') || 0).toLocaleString();
+            if (fishElement) fishElement.textContent = (Player.get('resources.fish') || 0).toLocaleString();
+            if (lumberElement) lumberElement.textContent = (Player.get('resources.lumber') || 0).toLocaleString();
+            if (oatsElement) oatsElement.textContent = (Player.get('resources.oats') || 0).toLocaleString();
+            if (grainElement) grainElement.textContent = (Player.get('resources.grain') || 0).toLocaleString();
+            if (cowsElement) cowsElement.textContent = (Player.get('resources.cows') || 0).toLocaleString();
         }
 
         // Funzione per salvare i dati del giocatore (ora gestita automaticamente)
