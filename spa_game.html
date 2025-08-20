@@ -618,7 +618,7 @@
             gap: 2%;
         }
 
-        /* Sezione Resources - ora occupa il 60% verticale */
+        /* Sezione Resources - ora occupa il 60% verticale e supporta 8 elementi */
         .resources-section {
             height: 60%;
             background: rgba(0, 0, 0, 0.2);
@@ -627,8 +627,8 @@
             padding: 3%;
             backdrop-filter: blur(5px);
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
             gap: 2%;
         }
 
@@ -761,21 +761,23 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        /* Stili speciali per pulsanti diversi */
-        .action-button.success {
-            background: linear-gradient(135deg, #27ae60, #229954);
+        /* Stile per pulsante disabilitato */
+        .action-button:disabled {
+            background: linear-gradient(135deg, #808080, #696969);
+            color: #b0b0b0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            border-color: #707070;
         }
 
-        .action-button.success:hover {
-            background: linear-gradient(135deg, #58d68d, #27ae60);
+        /* Gli stili .success e .danger non alterano più il colore di sfondo */
+        .action-button.success {
+            /* Eventuali altre proprietà possono rimanere, es. un'icona */
         }
 
         .action-button.danger {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-        }
-
-        .action-button.danger:hover {
-            background: linear-gradient(135deg, #ec7063, #e74c3c);
+            /* Eventuali altre proprietà possono rimanere */
         }
 
         /* Sezione Testo Narrativo - occupa il rimanente 50% orizzontale */
@@ -1221,13 +1223,13 @@
 
                     <!-- Colonna destra - UI Resources e Pulsanti + Testo -->
                     <div class="right-column-game">
-                        <!-- Sezione Resources - Grid 3x2 -->
+                        <!-- Sezione Resources - Grid 4x2 -->
                         <div class="resources-section">
                             <div class="resource-item">
                                 <div class="resource-icon placeholder" id="rubies-icon">💎</div>
                                 <div class="resource-info">
                                     <div class="resource-label">Rubini</div>
-                                    <div class="resource-value" id="rubies-value">1,250</div>
+                                    <div class="resource-value" id="rubies-value">0</div>
                                 </div>
                             </div>
                             
@@ -1235,17 +1237,17 @@
                                 <div class="resource-icon placeholder" id="gold-icon">🪙</div>
                                 <div class="resource-info">
                                     <div class="resource-label">Oro</div>
-                                    <div class="resource-value" id="gold-value">5,820</div>
+                                    <div class="resource-value" id="gold-value">0</div>
                                 </div>
                             </div>
                             
                             <div class="resource-item">
                                 <div class="resource-icon" id="energy-icon">
-                                    <img src="coal.jpg" alt="Carbone">
+                                    <img src="coal.jpg" alt="Energia">
                                 </div>
                                 <div class="resource-info">
-                                    <div class="resource-label">COAL</div>
-                                    <div class="resource-value" id="energy-value">95/100</div>
+                                    <div class="resource-label">Energia</div>
+                                    <div class="resource-value" id="energy-value">0/100</div>
                                 </div>
                             </div>
 
@@ -1254,8 +1256,8 @@
                                     <img src="silk.jpg" alt="Seta">
                                 </div>
                                 <div class="resource-info">
-                                    <div class="resource-label">SILK</div>
-                                    <div class="resource-value" id="crystals-value">342</div>
+                                    <div class="resource-label">Seta</div>
+                                    <div class="resource-value" id="crystals-value">0</div>
                                 </div>
                             </div>
 
@@ -1263,7 +1265,7 @@
                                 <div class="resource-icon placeholder" id="wood-icon">🪵</div>
                                 <div class="resource-info">
                                     <div class="resource-label">Legno</div>
-                                    <div class="resource-value" id="wood-value">1,890</div>
+                                    <div class="resource-value" id="wood-value">0</div>
                                 </div>
                             </div>
 
@@ -1271,7 +1273,23 @@
                                 <div class="resource-icon placeholder" id="stone-icon">🪨</div>
                                 <div class="resource-info">
                                     <div class="resource-label">Pietra</div>
-                                    <div class="resource-value" id="stone-value">2,150</div>
+                                    <div class="resource-value" id="stone-value">0</div>
+                                </div>
+                            </div>
+
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="food-icon">🍔</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Cibo</div>
+                                    <div class="resource-value" id="food-value">0</div>
+                                </div>
+                            </div>
+
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="water-icon">💧</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Acqua</div>
+                                    <div class="resource-value" id="water-value">0</div>
                                 </div>
                             </div>
                         </div>
@@ -1832,15 +1850,16 @@
                     
                     // === RISORSE ===
                     resources: {
-                        rubies: 1250,
-                        gold: 5820,
-                        energy: 95,
+                        rubies: 0,
+                        gold: 0,
+                        energy: 0,
                         maxEnergy: 100,
                         coal: 0,
-                        wood: 1890,
-                        stone: 2150,
-                        food: 45,
-                        water: 78
+                        wood: 0,
+                        stone: 0,
+                        food: 0,
+                        water: 0,
+                        crystals: 0
                     },
                     
                     // === INVENTARIO ===
@@ -2474,7 +2493,7 @@
             // Aggiunge il pulsante MOVE
             const moveButton = document.createElement('button');
             moveButton.id = 'btn_move';
-            moveButton.className = 'action-button success'; // Stile diverso per il movimento
+            moveButton.className = 'action-button'; // Stile unificato
             moveButton.textContent = 'MUOVITI';
             moveButton.disabled = true; // Disabilitato di default
             moveButton.addEventListener('click', handleMove);
@@ -2615,13 +2634,17 @@
             const crystalsElement = document.getElementById('crystals-value');
             const woodElement = document.getElementById('wood-value');
             const stoneElement = document.getElementById('stone-value');
+            const foodElement = document.getElementById('food-value');
+            const waterElement = document.getElementById('water-value');
             
             if (rubiesElement) rubiesElement.textContent = Player.get('resources.rubies').toLocaleString();
             if (goldElement) goldElement.textContent = Player.get('resources.gold').toLocaleString();
             if (energyElement) energyElement.textContent = `${Player.get('resources.energy')}/${Player.get('resources.maxEnergy')}`;
-            if (crystalsElement) crystalsElement.textContent = Player.get('resources.crystals').toLocaleString();
+            if (crystalsElement) crystalsElement.textContent = (Player.get('resources.crystals') || 0).toLocaleString();
             if (woodElement) woodElement.textContent = Player.get('resources.wood').toLocaleString();
             if (stoneElement) stoneElement.textContent = Player.get('resources.stone').toLocaleString();
+            if (foodElement) foodElement.textContent = Player.get('resources.food').toLocaleString();
+            if (waterElement) waterElement.textContent = Player.get('resources.water').toLocaleString();
         }
 
         // Funzione per salvare i dati del giocatore (ora gestita automaticamente)
@@ -2874,23 +2897,7 @@
             // Qui potresti aggiungere logica aggiuntiva se necessaria
         });
 
-        // Simulazione aggiornamento risorse in tempo reale (solo per Game UI)
-        setInterval(function() {
-            if (currentSection === 'game-ui-section') {
-                // Esempio: l'energia si rigenera lentamente
-                const currentEnergy = Player.get('resources.energy');
-                const maxEnergy = Player.get('resources.maxEnergy');
-                
-                if (currentEnergy < maxEnergy) {
-                    Player.set('resources.energy', Math.min(currentEnergy + 1, maxEnergy));
-                    updateResourcesDisplay();
-                }
-                
-                // Esempio: aggiungi oro passivamente ogni 5 secondi
-                Player.addResource('gold', 10);
-                updateResourcesDisplay();
-            }
-        }, 5000); // Ogni 5 secondi
+        // La simulazione di aggiornamento risorse in tempo reale è stata rimossa.
         
         // ================= SAVEGAME IMPORT/EXPORT SYSTEM =================
         
