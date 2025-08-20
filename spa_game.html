@@ -1,0 +1,3274 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contenitore Trasparente</title>
+    <style>
+        /* Reset base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Elimina overflow e scrolling */
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Contenitore padre globale - Layout nativo 1920x1080 */
+        .main-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: transparent;
+        }
+
+        /* Elemento figlio identico al padre con immagine */
+        .child-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: transparent;
+        }
+
+        /* Stile per l'immagine */
+        .child-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+        }
+
+        /* Overlay shadow sopra l'immagine */
+        .overlay-shadow {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(0, 0, 0, 0.75);
+        }
+
+        /* Layout container per header, main, footer */
+        .layout-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        /* Header section */
+        .header-section {
+            width: 100%;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 40px;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Main content section */
+        .main-section {
+            width: 100%;
+            flex: 1;
+            background: transparent;
+            overflow-y: auto;
+            padding: 0;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Footer section */
+        .footer-section {
+            width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 40px;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Stile per il titolo dell'header */
+        .header-section h1 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 5vh;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: 1px;
+            margin: 0;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        /* Effetto di glow per il titolo */
+        .header-section h1::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            z-index: -1;
+        }
+
+        /* SPA Navigation - Classi per nascondere/mostrare sezioni */
+        .spa-section {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .spa-section.active {
+            display: flex;
+        }
+
+        /* ================= MAIN MENU STYLES ================= */
+
+        /* Menu Box Container */
+        .menu-box {
+            margin-left: 3%;
+            width: 25%;
+            height: 80%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Main Menu Container - aggiornato */
+        .main-menu {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Pulsanti - aggiornati */
+        .menu-button {
+            width: 95%;
+            height: calc((100% - 60px) / 7);
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: 1px solid #ecf0f1;
+            color: #ecf0f1;
+            font-size: 3vh;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .menu-button:hover {
+            background: linear-gradient(135deg, #5dade2, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-button:active {
+            background: linear-gradient(135deg, #2471a3, #1f618d);
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stile speciale per il pulsante ESCI DAL GIOCO */
+        .menu-button.exit {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .menu-button.exit:hover {
+            background: linear-gradient(135deg, #ec7063, #e74c3c);
+        }
+
+        .menu-button.exit:active {
+            background: linear-gradient(135deg, #a93226, #922b21);
+        }
+
+        /* ================= CUTSCENE STYLES ================= */
+
+        /* Main content section per cutscene */
+        .cutscene-main-section {
+            width: 100%;
+            flex: 1;
+            background: transparent;
+            overflow-y: auto;
+            padding: 0;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: stretch;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Colonna sinistra - Immagine */
+        .left-column {
+            width: 60%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Container per l'immagine della cutscene - QUADRATO PERFETTO */
+        .image-container {
+            width: 80vh; /* Dimensione fissa basata su viewport height */
+            height: 80vh; /* Stessa dimensione per garantire quadrato perfetto */
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0; /* Previene ridimensionamento */
+        }
+
+        /* Stile per immagini reali caricate nel container */
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Mantiene proporzioni senza distorsioni */
+            object-position: center;
+            border-radius: 12px;
+        }
+
+        .image-placeholder {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 2vh;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* Colonna destra - Narrativa e controlli */
+        .right-column {
+            width: 40%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Sezione narrativa */
+        .narrative-section {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
+        }
+
+        .narrative-text {
+            color: #ffffff;
+            font-size: 2.2vh;
+            line-height: 1.6;
+            text-align: justify;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Sezione pulsante */
+        .button-section {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Pulsante continua - stesso stile dei menu button */
+        .continue-button {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: 1px solid #ecf0f1;
+            color: #ecf0f1;
+            font-size: 3vh;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            letter-spacing: 2px;
+        }
+
+        .continue-button:hover {
+            background: linear-gradient(135deg, #5dade2, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .continue-button:active {
+            background: linear-gradient(135deg, #2471a3, #1f618d);
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Scrollbar personalizzata */
+        .narrative-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .narrative-section::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .narrative-section::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .narrative-section::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ================= GAME UI STYLES ================= */
+
+        /* Main content section per game UI */
+        .game-ui-main-section {
+            width: 100%;
+            height: 90%;
+            background: transparent;
+            overflow-y: auto;
+            padding: 0;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: stretch;
+            padding: 1%;
+            gap: 1%;
+        }
+
+        /* Header section per game UI */
+        .game-ui-header-section {
+            width: 100%;
+            height: 5%;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 2%;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Footer section per game UI */
+        .game-ui-footer-section {
+            width: 100%;
+            height: 5%;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2%;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Footer left - Back button */
+        .footer-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ecf0f1;
+            font-size: 1.4vh;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 1vh 2vh;
+            border-radius: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #5d6d7e, #34495e);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .back-button:active {
+            background: linear-gradient(135deg, #273746, #1b2631);
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Footer center - Copyright */
+        .footer-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Footer right - Volume control */
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 1vh;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 1vh;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5vh 1vh;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(3px);
+        }
+
+        .volume-icon {
+            font-size: 2vh;
+            color: #f39c12;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .volume-icon:hover {
+            color: #e67e22;
+            transform: scale(1.1);
+        }
+
+        /* Custom slider styling */
+        .volume-slider {
+            width: 8vh;
+            height: 0.6vh;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.8vh;
+            height: 1.8vh;
+            background: #f39c12;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-top: -0.6vh; /* Centra perfettamente il thumb */
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            background: #e67e22;
+            transform: scale(1.2);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 1.8vh;
+            height: 1.8vh;
+            background: #f39c12;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-top: -0.6vh; /* Centra perfettamente il thumb */
+        }
+
+        .volume-slider::-moz-range-thumb:hover {
+            background: #e67e22;
+            transform: scale(1.2);
+        }
+
+        /* Slider track styling */
+        .volume-slider::-webkit-slider-runnable-track {
+            height: 0.6vh;
+            background: linear-gradient(to right, #f39c12 0%, #f39c12 var(--volume-percent, 50%), rgba(255, 255, 255, 0.2) var(--volume-percent, 50%), rgba(255, 255, 255, 0.2) 100%);
+            border-radius: 3px;
+        }
+
+        .volume-slider::-moz-range-track {
+            height: 0.6vh;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            border: none;
+        }
+
+        .volume-slider::-moz-range-progress {
+            height: 0.6vh;
+            background: #f39c12;
+            border-radius: 3px;
+        }
+
+        /* Stile per il titolo dell'header */
+        .game-ui-header-section h1 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 3vh;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            letter-spacing: 1px;
+            margin: 0;
+            text-transform: uppercase;
+            position: relative;
+        }
+
+        /* Effetto di glow per il titolo */
+        .game-ui-header-section h1::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            z-index: -1;
+        }
+
+        /* Colonna sinistra - Immagine per game UI */
+        .left-column-game {
+            width: 40%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Container per l'immagine della cutscene - QUADRATO PERFETTO per game UI */
+        .image-container-game {
+            width: 90%;
+            height: 90%;
+            max-width: 80vh;
+            max-height: 80vh;
+            aspect-ratio: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3%;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        /* Stile per immagini reali caricate nel container per game UI */
+        .image-container-game img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 3%;
+        }
+
+        /* Colonna destra - UI Resources e Pulsanti + Testo per game UI */
+        .right-column-game {
+            width: 60%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2%;
+        }
+
+        /* Sezione Resources - ora occupa il 60% verticale */
+        .resources-section {
+            height: 60%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3%;
+            padding: 3%;
+            backdrop-filter: blur(5px);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 2%;
+        }
+
+        /* Container per singola risorsa */
+        .resource-item {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 3%;
+            padding: 2%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Icona della risorsa */
+        .resource-icon {
+            width: 35%;
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 2vh;
+        }
+
+        /* Placeholder per icona quando non c'è immagine */
+        .resource-icon.placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: bold;
+        }
+
+        /* Immagine dell'icona */
+        .resource-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            border-radius: 10%;
+        }
+
+        /* Info della risorsa */
+        .resource-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5%;
+            min-width: 0;
+        }
+
+        /* Etichetta della risorsa */
+        .resource-label {
+            color: #ffffff;
+            font-size: 2.5vh;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Valore della risorsa */
+        .resource-value {
+            color: #f39c12;
+            font-size: 2.5vh;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Container inferiore - occupa il 38% verticale rimanente */
+        .bottom-container {
+            height: 38%;
+            display: flex;
+            gap: 2%;
+        }
+
+        /* Sezione Pulsanti - ora occupa il 50% orizzontale del container inferiore */
+        .buttons-section {
+            width: 50%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3%;
+            padding: 3%;
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 3%;
+        }
+
+        /* Pulsanti rettangolari */
+        .action-button {
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: 1px solid #ecf0f1;
+            color: #ecf0f1;
+            font-size: 2.2vh;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border-radius: 5%;
+            letter-spacing: 1px;
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, #5dade2, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .action-button:active {
+            background: linear-gradient(135deg, #2471a3, #1f618d);
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stili speciali per pulsanti diversi */
+        .action-button.success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+
+        .action-button.success:hover {
+            background: linear-gradient(135deg, #58d68d, #27ae60);
+        }
+
+        .action-button.danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .action-button.danger:hover {
+            background: linear-gradient(135deg, #ec7063, #e74c3c);
+        }
+
+        /* Sezione Testo Narrativo - occupa il rimanente 50% orizzontale */
+        .narrative-section-game {
+            width: 50%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3%;
+            padding: 3%;
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Titolo del testo narrativo */
+        .narrative-title {
+            color: #ffffff;
+            font-size: 2.2vh;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            margin-bottom: 3%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 2%;
+        }
+
+        /* Contenuto del testo narrativo */
+        .narrative-content {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 2.4vh;
+            line-height: 1.6;
+            text-align: justify;
+            flex: 1;
+            overflow-y: auto;
+            padding: 2% 3%;
+            transition: all 0.3s ease;
+        }
+
+        /* Scrollbar personalizzata per il testo narrativo */
+        .narrative-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .narrative-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .narrative-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .narrative-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ================= MODAL SYSTEM STYLES ================= */
+
+        /* Overlay del modale */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Contenitore del modale */
+        .modal-container {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            min-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        /* Titolo del modale */
+        .modal-title {
+            font-size: 3vh;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ecf0f1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Messaggio del modale */
+        .modal-message {
+            font-size: 2.4vh;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: pre-line;
+        }
+
+        /* Container dei pulsanti */
+        .modal-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Pulsanti del modale */
+        .modal-button {
+            padding: 15px 30px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-size: 2.2vh;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            letter-spacing: 1px;
+        }
+
+        /* Pulsante di conferma (verde) */
+        .modal-button.confirm {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            border-color: #58d68d;
+            color: #ffffff;
+        }
+
+        .modal-button.confirm:hover {
+            background: linear-gradient(135deg, #58d68d, #27ae60);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(39, 174, 96, 0.5);
+        }
+
+        .modal-button.confirm:active {
+            background: linear-gradient(135deg, #1e8449, #196f3d);
+            transform: translateY(0);
+        }
+
+        /* Pulsante di annullamento (rosso) */
+        .modal-button.cancel {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-color: #ec7063;
+            color: #ffffff;
+        }
+
+        .modal-button.cancel:hover {
+            background: linear-gradient(135deg, #ec7063, #e74c3c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(231, 76, 60, 0.5);
+        }
+
+        .modal-button.cancel:active {
+            background: linear-gradient(135deg, #a93226, #922b21);
+            transform: translateY(0);
+        }
+
+        /* Pulsante informativo (blu) */
+        .modal-button.info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-color: #5dade2;
+            color: #ffffff;
+        }
+
+        .modal-button.info:hover {
+            background: linear-gradient(135deg, #5dade2, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+        }
+
+        .modal-button.info:active {
+            background: linear-gradient(135deg, #2471a3, #1f618d);
+            transform: translateY(0);
+        }
+
+        /* Icone nei titoli */
+        .modal-title.confirm-title::before {
+            content: "⚠️ ";
+            font-size: 3.5vh;
+            margin-right: 10px;
+        }
+
+        .modal-title.info-title::before {
+            content: "ℹ️ ";
+            font-size: 3.5vh;
+            margin-right: 10px;
+        }
+
+        .modal-title.success-title::before {
+            content: "✅ ";
+            font-size: 3.5vh;
+            margin-right: 10px;
+        }
+
+        .modal-title.download-title::before {
+            content: "💾 ";
+            font-size: 3.5vh;
+            margin-right: 10px;
+        }
+
+        /* Responsive per modali */
+        @media (max-width: 768px) {
+            .modal-container {
+                max-width: 90vw;
+                min-width: 300px;
+                padding: 30px 20px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .modal-button {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+
+        /* Media Queries precise per ogni risoluzione */
+        
+        /* 8K UHD - 7680x4320 - scala 4 */
+        @media screen and (width: 7680px) and (height: 4320px) {
+            .main-container { transform: scale(4); }
+
+        }
+
+        /* 5K - 5120x2880 - scala 2.66 */
+        @media screen and (width: 5120px) and (height: 2880px) {
+            .main-container { transform: scale(2.66); }
+
+        }
+
+        /* 4K UHD - 3840x2160 - scala 2 */
+        @media screen and (width: 3840px) and (height: 2160px) {
+            .main-container { transform: scale(2); }
+
+        }
+
+        /* QHD+ - 3200x1800 - scala 1.66 */
+        @media screen and (width: 3200px) and (height: 1800px) {
+            .main-container { transform: scale(1.66); }
+
+        }
+
+        /* QHD - 2560x1440 - scala 1.33 */
+        @media screen and (width: 2560px) and (height: 1440px) {
+            .main-container { transform: scale(1.33); }
+
+        }
+
+        /* Custom - 2048x1152 - scala 1.06 */
+        @media screen and (width: 2048px) and (height: 1152px) {
+            .main-container { transform: scale(1.06); }
+
+        }
+
+        /* Full HD - 1920x1080 - scala 1 (Layout nativo) */
+        @media screen and (width: 1920px) and (height: 1080px) {
+            .main-container { transform: scale(1); }
+
+        }
+
+        /* HD+ - 1600x900 - scala 0.83 */
+        @media screen and (width: 1600px) and (height: 900px) {
+            .main-container { transform: scale(0.83); }
+
+        }
+
+        /* FWXGA - 1366x768 - scala 0.71 */
+        @media screen and (width: 1366px) and (height: 768px) {
+            .main-container { transform: scale(0.71); }
+
+        }
+
+        /* HD - 1280x720 - scala 0.66 */
+        @media screen and (width: 1280px) and (height: 720px) {
+            .main-container { transform: scale(0.66); }
+
+        }
+
+        /* WSVGA - 1024x576 - scala 0.53 */
+        @media screen and (width: 1024px) and (height: 576px) {
+            .main-container { transform: scale(0.53); }
+
+        }
+
+        /* qHD - 960x540 - scala 0.5 */
+        @media screen and (width: 960px) and (height: 540px) {
+            .main-container { transform: scale(0.5); }
+
+        }
+
+        /* FWVGA - 854x480 - scala 0.44 */
+        @media screen and (width: 854px) and (height: 480px) {
+            .main-container { transform: scale(0.44); }
+
+        }
+
+        /* nHD - 640x360 - scala 0.33 */
+        @media screen and (width: 640px) and (height: 360px) {
+            .main-container { transform: scale(0.33); }
+
+        }
+
+        /* Gestione aspect ratio più stretti di 16:9 (4:3, 5:4, ecc.) */
+        @media screen and (max-aspect-ratio: 16/9) {
+            .main-container {
+                width: 100vw;
+                height: calc(100vw * 9 / 16);
+                top: 50%;
+                left: 0;
+                transform: translateY(-50%);
+            }
+            
+            body {
+                background: #000;
+                overflow: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Il contenitore è ora completamente trasparente -->
+        
+        <!-- Elemento figlio identico al padre con immagine -->
+        <div class="child-container">
+            <img src="main_menu_bg.png" alt="Immagine di sfondo">
+        </div>
+        
+        <!-- Overlay shadow sopra l'immagine -->
+        <div class="overlay-shadow"></div>
+        
+        <!-- ================= MAIN MENU SECTION ================= -->
+        <div id="main-menu-section" class="spa-section active">
+            <div class="layout-container">
+                <header class="header-section">
+                    <h1 data-text="HEADER - TITOLO DELLA PAGINA">HEADER - TITOLO DELLA PAGINA</h1>
+                </header>
+                
+                <main class="main-section">
+                    <div class="menu-box">
+                        <div class="main-menu">
+                            <button class="menu-button" onclick="startNewGame()">Nuova Partita</button>
+                            <button class="menu-button" onclick="loadGame()">Carica Partita</button>
+                            <button class="menu-button" onclick="showImportSavegame()">Import Savegame</button>
+                            <button class="menu-button" onclick="showOptions()">Opzioni</button>
+                            <button class="menu-button" onclick="showCredits()">Crediti</button>
+                            <button class="menu-button" onclick="showTutorial()">Tutorial</button>
+                            <button class="menu-button exit" onclick="exitGame()">Esci dal Gioco</button>
+                        </div>
+                    </div>
+                </main>
+                
+                <footer class="footer-section">
+                </footer>
+            </div>
+        </div>
+
+        <!-- ================= CUTSCENE SECTION ================= -->
+        <div id="cutscene-section" class="spa-section">
+            <div class="layout-container">
+                <header class="header-section">
+                    <h1 id="cutscene-title" data-text="L'INIZIO DELL'AVVENTURA">L'INIZIO DELL'AVVENTURA</h1>
+                </header>
+                
+                <main class="cutscene-main-section">
+                    <!-- Colonna sinistra - Immagine -->
+                    <div class="left-column">
+                        <div class="image-container">
+                            <div class="image-placeholder">Immagine della cutscene qui</div>
+                        </div>
+                    </div>
+
+                    <!-- Colonna destra - Narrativa e controlli -->
+                    <div class="right-column">
+                        <!-- Sezione narrativa -->
+                        <div class="narrative-section">
+                            <div class="narrative-text" id="cutscene-narrative-content">
+                                Era una notte buia e tempestosa quando il nostro eroe iniziò il suo viaggio. Le stelle erano nascoste dalle nuvole cariche di pioggia, e solo il bagliore intermittente dei fulmini illuminava il sentiero tortuoso che si estendeva davanti a lui.
+                                <br><br>
+                                Con il cuore pieno di determinazione e la mente concentrata sull'obiettivo, prese il primo passo verso un destino che avrebbe cambiato per sempre il corso della sua vita. Non sapeva ancora quali sfide lo attendevano, ma era pronto ad affrontare qualsiasi ostacolo.
+                                <br><br>
+                                Il vento ululava tra gli alberi spogli, creando una sinfonia inquietante che accompagnava ogni suo passo. Ad ogni lampo, ombre danzanti sembravano prendere vita, ma la sua determinazione non vacillava mai.
+                            </div>
+                        </div>
+
+                        <!-- Sezione pulsante -->
+                        <div class="button-section">
+                            <button class="continue-button" onclick="continueCutscene()">CONTINUA</button>
+                        </div>
+                    </div>
+                </main>
+                
+                <footer class="footer-section">
+                </footer>
+            </div>
+        </div>
+
+        <!-- ================= GAME UI SECTION ================= -->
+        <div id="game-ui-section" class="spa-section">
+            <div class="layout-container">
+                <header class="game-ui-header-section">
+                    <h1 id="game-ui-title" data-text="L'INIZIO DELL'AVVENTURA">L'INIZIO DELL'AVVENTURA</h1>
+                </header>
+                
+                <main class="game-ui-main-section">
+                    <!-- Colonna sinistra - Immagine -->
+                    <div class="left-column-game">
+                        <div class="image-container-game">
+                            <div class="image-placeholder">Immagine della cutscene qui</div>
+                        </div>
+                    </div>
+
+                    <!-- Colonna destra - UI Resources e Pulsanti + Testo -->
+                    <div class="right-column-game">
+                        <!-- Sezione Resources - Grid 3x2 -->
+                        <div class="resources-section">
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="rubies-icon">💎</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Rubini</div>
+                                    <div class="resource-value" id="rubies-value">1,250</div>
+                                </div>
+                            </div>
+                            
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="gold-icon">🪙</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Oro</div>
+                                    <div class="resource-value" id="gold-value">5,820</div>
+                                </div>
+                            </div>
+                            
+                            <div class="resource-item">
+                                <div class="resource-icon" id="energy-icon">
+                                    <img src="coal.jpg" alt="Carbone">
+                                </div>
+                                <div class="resource-info">
+                                    <div class="resource-label">COAL</div>
+                                    <div class="resource-value" id="energy-value">95/100</div>
+                                </div>
+                            </div>
+
+                            <div class="resource-item">
+                                <div class="resource-icon" id="crystals-icon">
+                                    <img src="silk.jpg" alt="Seta">
+                                </div>
+                                <div class="resource-info">
+                                    <div class="resource-label">SILK</div>
+                                    <div class="resource-value" id="crystals-value">342</div>
+                                </div>
+                            </div>
+
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="wood-icon">🪵</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Legno</div>
+                                    <div class="resource-value" id="wood-value">1,890</div>
+                                </div>
+                            </div>
+
+                            <div class="resource-item">
+                                <div class="resource-icon placeholder" id="stone-icon">🪨</div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Pietra</div>
+                                    <div class="resource-value" id="stone-value">2,150</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Container inferiore con Pulsanti e Testo Narrativo -->
+                        <div class="bottom-container">
+                            <!-- Sezione Pulsanti - ora popolata dinamicamente -->
+                            <div class="buttons-section">
+                                <!-- I pulsanti vengono generati dinamicamente dal sistema di location -->
+                            </div>
+
+                            <!-- Sezione Testo Narrativo -->
+                            <div class="narrative-section-game">
+                                <div class="narrative-title" id="narrative-title">Guida</div>
+                                <div class="narrative-content" id="game-narrative-content">
+                                    Caricamento location...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                
+                <footer class="game-ui-footer-section">
+                    <!-- Footer Left - Back Button -->
+                    <div class="footer-left">
+                        <button class="back-button" onclick="backToMainMenu()">← BACK TO MAIN MENU</button>
+                    </div>
+                    
+                    <!-- Footer Center - Download Savegame -->
+                    <div class="footer-center">
+                        <button class="back-button" onclick="downloadSavegame()" style="background: linear-gradient(135deg, #27ae60, #229954);">💾 DOWNLOAD SAVEGAME</button>
+                    </div>
+                    
+                    <!-- Footer Right - Volume Control -->
+                    <div class="footer-right">
+                        <div class="volume-control">
+                            <span class="volume-icon" onclick="toggleMute()">🔊</span>
+                            <input type="range" 
+                                   id="volume-slider" 
+                                   class="volume-slider" 
+                                   min="0" 
+                                   max="100" 
+                                   value="75" 
+                                   oninput="changeVolume(this.value)">
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL SYSTEM ================= -->
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModalOnOverlayClick(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div id="modal-title" class="modal-title"></div>
+            <div id="modal-message" class="modal-message"></div>
+            <div id="modal-buttons" class="modal-buttons"></div>
+        </div>
+    </div>
+
+    <!-- Input file nascosto per l'import del savegame -->
+    <input type="file" 
+           id="savegame-file-input" 
+           accept=".json" 
+           style="display: none;" 
+           onchange="handleSavegameFileLoad(event)">
+
+    <script>
+        // ================= SPA NAVIGATION SYSTEM =================
+        
+        let currentSection = 'main-menu-section';
+        
+        function showSection(sectionId) {
+            console.log('🎯 Cambiando sezione da', currentSection, 'a', sectionId);
+            
+            // Nasconde tutte le sezioni
+            document.querySelectorAll('.spa-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostra la sezione richiesta
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                currentSection = sectionId;
+                console.log('✅ Sezione cambiata con successo:', sectionId);
+            } else {
+                console.error('❌ Sezione non trovata:', sectionId);
+                return false;
+            }
+            
+            // Aggiorna l'overlay shadow se necessario
+            const overlayElement = document.querySelector('.overlay-shadow');
+            if (overlayElement) {
+                if (sectionId === 'cutscene-section') {
+                    overlayElement.style.background = 'rgba(0, 0, 0, 0.85)';
+                } else if (sectionId === 'game-ui-section') {
+                    overlayElement.style.background = 'rgba(0, 0, 0, 0.85)';
+                } else {
+                    overlayElement.style.background = 'rgba(0, 0, 0, 0.75)';
+                }
+            }
+            
+            return true;
+        }
+
+        // ================= MODAL SYSTEM =================
+        
+        let currentModal = null;
+        let currentModalCallbacks = {};
+        
+        // Funzione per mostrare modale di conferma (2 pulsanti)
+        function showConfirmModal(title, message, onConfirm, onCancel = null) {
+            const overlay = document.getElementById('modal-overlay');
+            const titleElement = document.getElementById('modal-title');
+            const messageElement = document.getElementById('modal-message');
+            const buttonsElement = document.getElementById('modal-buttons');
+            
+            // Debug dettagliato
+            console.log('🎯 Mostrando modale di conferma:', title);
+            console.log('📝 Messaggio:', message);
+            console.log('🔧 Callback conferma:', typeof onConfirm, onConfirm);
+            console.log('🔧 Callback annulla:', typeof onCancel, onCancel);
+            
+            // Imposta contenuto
+            titleElement.textContent = title;
+            titleElement.className = 'modal-title confirm-title';
+            messageElement.textContent = message;
+            
+            // Memorizza le callback nel oggetto globale con validazione
+            currentModalCallbacks = {
+                confirm: typeof onConfirm === 'function' ? onConfirm : null,
+                cancel: typeof onCancel === 'function' ? onCancel : null
+            };
+            
+            console.log('💾 Callback memorizzate:', currentModalCallbacks);
+            
+            // Crea pulsanti
+            buttonsElement.innerHTML = `
+                <button class="modal-button cancel" onclick="executeModalAction('cancel')">
+                    ANNULLA
+                </button>
+                <button class="modal-button confirm" onclick="executeModalAction('confirm')">
+                    CONFERMA
+                </button>
+            `;
+            
+            // Mostra modale
+            overlay.classList.add('active');
+            currentModal = 'confirm';
+            
+            console.log('👁️ Modale visibile, stato:', currentModal);
+            
+            // Focus sul pulsante conferma
+            setTimeout(() => {
+                const confirmBtn = buttonsElement.querySelector('.confirm');
+                if (confirmBtn) confirmBtn.focus();
+            }, 300);
+        }
+        
+        // Funzione per mostrare modale informativo (1 pulsante)
+        function showInfoModal(title, message, onContinue = null, type = 'info') {
+            const overlay = document.getElementById('modal-overlay');
+            const titleElement = document.getElementById('modal-title');
+            const messageElement = document.getElementById('modal-message');
+            const buttonsElement = document.getElementById('modal-buttons');
+            
+            // Debug
+            console.log('ℹ️ Mostrando modale informativo:', title);
+            
+            // Imposta contenuto
+            titleElement.textContent = title;
+            titleElement.className = `modal-title ${type}-title`;
+            messageElement.textContent = message;
+            
+            // Memorizza la callback
+            currentModalCallbacks = {
+                continue: typeof onContinue === 'function' ? onContinue : null
+            };
+            
+            // Crea pulsante
+            const buttonClass = type === 'success' ? 'confirm' : 'info';
+            buttonsElement.innerHTML = `
+                <button class="modal-button ${buttonClass}" onclick="executeModalAction('continue')">
+                    CONTINUA
+                </button>
+            `;
+            
+            // Mostra modale
+            overlay.classList.add('active');
+            currentModal = 'info';
+            
+            // Focus sul pulsante
+            setTimeout(() => {
+                const continueBtn = buttonsElement.querySelector(`.${buttonClass}`);
+                if (continueBtn) continueBtn.focus();
+            }, 300);
+        }
+        
+        // Funzione unificata per eseguire le azioni dei modali
+        function executeModalAction(action) {
+            console.log('🎬 Eseguendo azione modale:', action);
+            console.log('📦 Callback disponibili:', currentModalCallbacks);
+            console.log('🔍 Verifica callback per azione "' + action + '":', currentModalCallbacks[action]);
+            
+            // Esegui la callback PRIMA di chiudere il modale
+            const callback = currentModalCallbacks[action];
+            if (callback && typeof callback === 'function') {
+                console.log('✅ Eseguendo callback per:', action);
+                try {
+                    callback();
+                    console.log('🎉 Callback eseguita con successo');
+                } catch (error) {
+                    console.error('❌ Errore nell\'esecuzione della callback:', error);
+                }
+            } else {
+                console.log('⚠️ Nessuna callback valida trovata per:', action);
+                console.log('🔧 Tipo callback ricevuto:', typeof callback);
+            }
+            
+            // Chiudi il modale DOPO aver eseguito la callback
+            closeModal();
+        }
+        
+        // Funzione per chiudere il modale
+        function closeModal() {
+            console.log('🚪 Chiudendo modale');
+            const overlay = document.getElementById('modal-overlay');
+            overlay.classList.remove('active');
+            currentModal = null;
+            currentModalCallbacks = {};
+        }
+        
+        // Chiusura modale cliccando sullo sfondo
+        function closeModalOnOverlayClick(event) {
+            if (event.target.id === 'modal-overlay') {
+                console.log('🖱️ Chiusura modale da click overlay');
+                closeModal();
+            }
+        }
+        
+        // Gestione tastiera per modali
+        document.addEventListener('keydown', function(event) {
+            if (currentModal) {
+                if (event.key === 'Escape') {
+                    console.log('⌨️ Chiusura modale da ESC');
+                    event.preventDefault();
+                    closeModal();
+                } else if (event.key === 'Enter') {
+                    console.log('⌨️ Conferma modale da ENTER');
+                    event.preventDefault();
+                    if (currentModal === 'confirm') {
+                        executeModalAction('confirm');
+                    } else if (currentModal === 'info') {
+                        executeModalAction('continue');
+                    }
+                }
+                return; // Blocca altri event listener quando è aperto un modale
+            }
+            
+            // Resto del codice per gestione tastiera normale...
+            if (currentSection === 'cutscene-section') {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    continueCutscene();
+                }
+            } else if (currentSection === 'game-ui-section') {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    actionButton2(); // Continua
+                }
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    actionButton3(); // Salta
+                }
+                if (event.key === 'i' || event.key === 'I') {
+                    event.preventDefault();
+                    actionButton1(); // Inventario
+                }
+            }
+        });
+
+        // ================= MAIN MENU FUNCTIONS =================
+        
+        function startNewGame() {
+            console.log('🎮 Avviando nuova partita...');
+            showSection('cutscene-section');
+            loadCutsceneData(currentCutsceneId);
+        }
+
+        function loadGame() {
+            console.log('📁 Caricando partita...');
+            
+            // Prima cambia sezione
+            const sectionChanged = showSection('game-ui-section');
+            
+            if (sectionChanged) {
+                // Aspetta che il DOM sia aggiornato prima di inizializzare
+                setTimeout(() => {
+                    console.log('🎮 Inizializzando Game UI dopo cambio sezione...');
+                    initializeGameUI();
+                }, 100);
+            } else {
+                console.error('❌ Errore nel cambio sezione al Game UI');
+            }
+        }
+
+        function showImportSavegame() {
+            console.log('📥 Aprendo import savegame...');
+            document.getElementById('savegame-file-input').click();
+        }
+
+        function showOptions() {
+            console.log('⚙️ Aprendo opzioni...');
+            showInfoModal(
+                "OPZIONI",
+                "Menu opzioni non ancora implementato.\n\nQuesta funzione sarà disponibile in una versione futura del gioco.",
+                null,
+                'info'
+            );
+        }
+
+        function showCredits() {
+            console.log('👨‍💻 Mostrando crediti...');
+            showInfoModal(
+                "CREDITI",
+                "Gioco creato con passione utilizzando HTML5, CSS3 e JavaScript.\n\nGrazie per aver giocato!",
+                null,
+                'info'
+            );
+        }
+
+        function showTutorial() {
+            console.log('📚 Avviando tutorial...');
+            showSection('cutscene-section');
+            // Carica tutorial invece di cutscene normale
+        }
+
+        function exitGame() {
+            console.log('🚪 Richiesta uscita dal gioco...');
+            showConfirmModal(
+                "USCITA DAL GIOCO",
+                "Sei sicuro di voler uscire dal gioco?\n\nVerrai reindirizzato a Google.",
+                function() {
+                    console.log('✅ Confermata uscita dal gioco - reindirizzando immediatamente');
+                    // Reindirizza immediatamente a Google
+                    window.location.href = 'https://www.google.com';
+                },
+                function() {
+                    console.log('❌ Uscita annullata');
+                }
+            );
+        }
+
+        // ================= CUTSCENE FUNCTIONS =================
+        
+        // Dati di esempio per la cutscene (simulazione caricamento da JSON)
+        const cutsceneData = {
+            "cutscene_01": {
+                "title": "L'Inizio dell'Avventura",
+                "narrative": "Era una notte buia e tempestosa quando il nostro eroe iniziò il suo viaggio. Le stelle erano nascoste dalle nuvole cariche di pioggia, e solo il bagliore intermittente dei fulmini illuminava il sentiero tortuoso che si estendeva davanti a lui.\n\nCon il cuore pieno di determinazione e la mente concentrata sull'obiettivo, prese il primo passo verso un destino che avrebbe cambiato per sempre il corso della sua vita. Non sapeva ancora quali sfide lo attendevano, ma era pronto ad affrontare qualsiasi ostacolo.\n\nIl vento ululava tra gli alberi spogli, creando una sinfonia inquietante che accompagnava ogni suo passo. Ad ogni lampo, ombre danzanti sembravano prendere vita, ma la sua determinazione non vacillava mai.",
+                "image": "cutscene_01.png"
+            },
+            "cutscene_02": {
+                "title": "L'Incontro Fatale",
+                "narrative": "Mentre si dirigeva verso il villaggio, un rumore strano attirò la sua attenzione. Tra i cespugli, una figura misteriosa lo osservava con occhi brillanti nel buio. Era questo l'incontro che avrebbe segnato l'inizio di una grande alleanza o di una terribile minaccia?\n\nLa figura si mosse lentamente, emergendo dalle ombre. Indossava un mantello scuro che ondeggiava nel vento, e i suoi occhi sembravano brillare di una luce propria. Il nostro eroe strinse la spada, pronto a tutto.",
+                "image": "path/to/cutscene_02_image.jpg"
+            }
+        };
+
+        // ID cutscene corrente (in un gioco reale verrebbe passato come parametro)
+        let currentCutsceneId = "cutscene_01";
+
+        // Funzione per caricare i dati della cutscene
+        function loadCutsceneData(cutsceneId) {
+            const data = cutsceneData[cutsceneId];
+            if (data) {
+                const titleElement = document.getElementById('cutscene-title');
+                titleElement.textContent = data.title.toUpperCase();
+                titleElement.setAttribute('data-text', data.title.toUpperCase());
+                
+                document.getElementById('cutscene-narrative-content').innerHTML = data.narrative.replace(/\n/g, '<br><br>');
+                
+                // Caricamento immagine - sempre quadrata
+                const imageContainer = document.querySelector('#cutscene-section .image-container');
+                if (data.image && data.image !== "path/to/cutscene_01_image.jpg") {
+                    // Rimuove il placeholder e carica l'immagine reale
+                    imageContainer.innerHTML = `<img src="${data.image}" alt="Cutscene Image" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.3s;">`;
+                } else {
+                    // Mantiene il placeholder se non c'è immagine
+                    imageContainer.innerHTML = '<div class="image-placeholder">Immagine della cutscene qui</div>';
+                }
+            }
+        }
+
+        // Funzione per continuare alla cutscene successiva
+        function continueCutscene() {
+            // Logica per andare alla cutscene successiva o uscire
+            if (currentCutsceneId === "cutscene_01") {
+                currentCutsceneId = "cutscene_02";
+                loadCutsceneData(currentCutsceneId);
+            } else {
+                // Fine delle cutscene - vai al game UI
+                showSection('game-ui-section');
+                initializeGameUI();
+            }
+        }
+
+        // ================= PLAYER DATA SYSTEM =================
+        
+        // Sistema completo di gestione dati giocatore con auto-save
+        class PlayerDataManager {
+            constructor() {
+                this.saveKey = 'game_player_data';
+                this.saveVersion = '1.0.0';
+                this.autoSaveInterval = 5000; // 5 secondi
+                this.autoSaveTimer = null;
+                
+                // Template dati giocatore completo
+                this.defaultData = {
+                    // === META INFO ===
+                    meta: {
+                        version: this.saveVersion,
+                        lastSaved: new Date().toISOString(),
+                        playTime: 0, // in secondi
+                        sessionStart: new Date().getTime()
+                    },
+                    
+                    // === PROFILO GIOCATORE ===
+                    profile: {
+                        playerName: 'Amazing Player',
+                        level: 1,
+                        experience: 0,
+                        experienceToNext: 100,
+                        class: 'warrior',
+                        avatar: 'default.png'
+                    },
+                    
+                    // === STATISTICHE ===
+                    stats: {
+                        coal: 0,
+                        maxHealth: 100,
+                        mana: 50,
+                        maxMana: 50,
+                        strength: 10,
+                        defense: 8,
+                        agility: 12,
+                        intelligence: 6,
+                        luck: 5
+                    },
+                    
+                    // === RISORSE ===
+                    resources: {
+                        rubies: 1250,
+                        gold: 5820,
+                        energy: 95,
+                        maxEnergy: 100,
+                        coal: 0,
+                        wood: 1890,
+                        stone: 2150,
+                        food: 45,
+                        water: 78
+                    },
+                    
+                    // === INVENTARIO ===
+                    inventory: {
+                        maxSlots: 30,
+                        items: [
+                            { id: 'sword_iron', quantity: 1, equipped: true },
+                            { id: 'potion_health', quantity: 5, equipped: false },
+                            { id: 'armor_leather', quantity: 1, equipped: true }
+                        ],
+                        equipment: {
+                            weapon: 'sword_iron',
+                            armor: 'armor_leather',
+                            accessory: null,
+                            ring: null
+                        }
+                    },
+                    
+                    // === PROGRESSIONE ===
+                    progress: {
+                        currentChapter: 1,
+                        currentScene: 'intro',
+                        completedQuests: [],
+                        activeQuests: [
+                            { id: 'main_001', title: 'Inizia l\'avventura', progress: 0.5 }
+                        ],
+                        unlockedAreas: ['village', 'forest_entrance'],
+                        achievements: []
+                    },
+                    
+                    // === IMPOSTAZIONI ===
+                    settings: {
+                        audio_volume: 75,
+                        music_volume: 60,
+                        sfx_volume: 80,
+                        is_muted: false,
+                        language: 'it',
+                        difficulty: 'normal',
+                        autoSave: true,
+                        showTutorials: true
+                    },
+                    
+                    // === DATI DI GIOCO ===
+                    gameData: {
+                        currentLocation: 'village_start',
+                        lastSavePoint: 'village_inn',
+                        gameFlags: {
+                            tutorial_completed: false,
+                            first_battle: false,
+                            met_companion: false
+                        },
+                        cutsceneProgress: {
+                            current: 'cutscene_01',
+                            completed: []
+                        }
+                    }
+                };
+                
+                // Carica i dati esistenti o usa i default
+                this.data = this.loadData();
+                
+                // Avvia il sistema di auto-save
+                this.startAutoSave();
+                
+                // Aggiorna il tempo di gioco
+                this.startPlayTimeTracking();
+            }
+            
+            // === SISTEMA DI CARICAMENTO ===
+            loadData() {
+                try {
+                    const saved = localStorage.getItem(this.saveKey);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        
+                        // Verifica compatibilità versione
+                        if (parsed.meta && parsed.meta.version === this.saveVersion) {
+                            console.log('✅ Dati giocatore caricati dalla versione', parsed.meta.version);
+                            
+                            // Merge con default per nuove proprietà 
+                            return this.mergeWithDefaults(parsed, this.defaultData);
+                        } else {
+                            console.log('⚠️ Versione save file non compatibile, applico migrazione...');
+                            return this.migrateSaveData(parsed);
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Errore caricamento dati:', error);
+                }
+                
+                console.log('🆕 Inizializzazione nuova partita');
+                return JSON.parse(JSON.stringify(this.defaultData));
+            }
+            
+            // === SISTEMA DI SALVATAGGIO ===
+            saveData(immediate = false) {
+                try {
+                    // Aggiorna metadati
+                    this.data.meta.lastSaved = new Date().toISOString();
+                    this.data.meta.version = this.saveVersion;
+                    
+                    // Salva in localStorage
+                    localStorage.setItem(this.saveKey, JSON.stringify(this.data));
+                    
+                    if (immediate) {
+                        console.log('💾 Dati salvati immediatamente');
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('❌ Errore salvataggio:', error);
+                    return false;
+                }
+            }
+            
+            // === AUTO-SAVE SYSTEM ===
+            startAutoSave() {
+                if (this.data.settings.autoSave) {
+                    this.autoSaveTimer = setInterval(() => {
+                        this.saveData();
+                        console.log('🔄 Auto-save completato');
+                    }, this.autoSaveInterval);
+                }
+            }
+            
+            stopAutoSave() {
+                if (this.autoSaveTimer) {
+                    clearInterval(this.autoSaveTimer);
+                    this.autoSaveTimer = null;
+                }
+            }
+            
+            // === TRACKING TEMPO DI GIOCO ===
+            startPlayTimeTracking() {
+                setInterval(() => {
+                    this.data.meta.playTime += 1;
+                }, 1000);
+            }
+            
+            // === GETTER/SETTER SICURI ===
+            get(path) {
+                return this.getNestedProperty(this.data, path);
+            }
+            
+            set(path, value) {
+                this.setNestedProperty(this.data, path, value);
+                this.saveData(); // Auto-save ad ogni modifica
+            }
+            
+            // === METODI DI UTILITÀ ===
+            addResource(type, amount) {
+                if (this.data.resources[type] !== undefined) {
+                    this.data.resources[type] += amount;
+                    this.saveData();
+                    return true;
+                }
+                return false;
+            }
+            
+            removeResource(type, amount) {
+                if (this.data.resources[type] !== undefined && this.data.resources[type] >= amount) {
+                    this.data.resources[type] -= amount;
+                    this.saveData();
+                    return true;
+                }
+                return false;
+            }
+            
+            addExperience(amount) {
+                this.data.profile.experience += amount;
+                this.checkLevelUp();
+                this.saveData();
+            }
+            
+            checkLevelUp() {
+                while (this.data.profile.experience >= this.data.profile.experienceToNext) {
+                    this.data.profile.experience -= this.data.profile.experienceToNext;
+                    this.data.profile.level++;
+                    this.data.profile.experienceToNext = Math.floor(this.data.profile.experienceToNext * 1.5);
+                    console.log(`🎉 LEVEL UP! Nuovo livello: ${this.data.profile.level}`);
+                }
+            }
+            
+            addItem(itemId, quantity = 1) {
+                const existing = this.data.inventory.items.find(item => item.id === itemId);
+                if (existing) {
+                    existing.quantity += quantity;
+                } else {
+                    this.data.inventory.items.push({ id: itemId, quantity, equipped: false });
+                }
+                this.saveData();
+            }
+            
+            removeItem(itemId, quantity = 1) {
+                const item = this.data.inventory.items.find(item => item.id === itemId);
+                if (item && item.quantity >= quantity) {
+                    item.quantity -= quantity;
+                    if (item.quantity <= 0) {
+                        this.data.inventory.items = this.data.inventory.items.filter(i => i.id !== itemId);
+                    }
+                    this.saveData();
+                    return true;
+                }
+                return false;
+            }
+            
+            // === GESTIONE QUEST ===
+            completeQuest(questId) {
+                this.data.progress.completedQuests.push(questId);
+                this.data.progress.activeQuests = this.data.progress.activeQuests.filter(q => q.id !== questId);
+                this.saveData();
+            }
+            
+            addQuest(questData) {
+                this.data.progress.activeQuests.push(questData);
+                this.saveData();
+            }
+            
+            // === UTILITÀ INTERNE ===
+            getNestedProperty(obj, path) {
+                return path.split('.').reduce((o, p) => o && o[p], obj);
+            }
+            
+            setNestedProperty(obj, path, value) {
+                const keys = path.split('.');
+                const lastKey = keys.pop();
+                const target = keys.reduce((o, k) => o[k] = o[k] || {}, obj);
+                target[lastKey] = value;
+            }
+            
+            mergeWithDefaults(saved, defaults) {
+                function merge(target, source) {
+                    for (const key in source) {
+                        if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                            target[key] = target[key] || {};
+                            merge(target[key], source[key]);
+                        } else if (target[key] === undefined) {
+                            target[key] = source[key];
+                        }
+                    }
+                    return target;
+                }
+                return merge(saved, defaults);
+            }
+            
+            migrateSaveData(oldData) {
+                console.log('🔄 Migrazione dati in corso...');
+                const migrated = JSON.parse(JSON.stringify(this.defaultData));
+                
+                // Mantieni i dati esistenti dove possibile
+                if (oldData.resources) {
+                    Object.assign(migrated.resources, oldData.resources);
+                }
+                if (oldData.audio_volume !== undefined) {
+                    migrated.settings.audio_volume = oldData.audio_volume;
+                }
+                if (oldData.is_muted !== undefined) {
+                    migrated.settings.is_muted = oldData.is_muted;
+                }
+                
+                console.log('✅ Migrazione completata');
+                return migrated;
+            }
+            
+            // === METODI DI DEBUG ===
+            exportSave() {
+                return JSON.stringify(this.data, null, 2);
+            }
+            
+            importSave(saveString) {
+                try {
+                    const imported = JSON.parse(saveString);
+                    this.data = this.mergeWithDefaults(imported, this.defaultData);
+                    this.saveData(true);
+                    return true;
+                } catch (error) {
+                    console.error('❌ Errore importazione save:', error);
+                    return false;
+                }
+            }
+            
+            resetGame() {
+                showConfirmModal(
+                    "RESET COMPLETO",
+                    "Sei sicuro di voler resettare tutti i dati di gioco?\n\nQuesta azione è irreversibile!",
+                    () => {
+                        localStorage.removeItem(this.saveKey);
+                        this.data = JSON.parse(JSON.stringify(this.defaultData));
+                        this.saveData(true);
+                        console.log('🗑️ Dati di gioco resettati');
+                        
+                        // Aggiorna UI se necessario
+                        if (typeof updateResourcesDisplay === 'function') {
+                            updateResourcesDisplay();
+                        }
+                        
+                        showInfoModal(
+                            "RESET COMPLETATO",
+                            "Dati di gioco resettati con successo!",
+                            null,
+                            'success'
+                        );
+                    }
+                );
+                return false; // Non possiamo più restituire un valore sincrono
+            }
+        }
+        
+        // Inizializza il sistema di gestione dati
+        const Player = new PlayerDataManager();
+        
+        // Alias per retrocompatibilità 
+        const playerData = Player.data;
+
+        // ================= DYNAMIC GAME DATA SYSTEM =================
+        
+        // Sistema di location dinamiche per il gioco
+        const gameLocations = {
+            "village_start": {
+                id: "village_start",
+                title: "Il Villaggio di Partenza",
+                image: "village_start.jpg",
+                baseNarrative: "Ti trovi nel piccolo villaggio dove è iniziata la tua avventura. Le case di pietra e legno si estendono lungo la strada principale, mentre i mercanti preparano le loro bancarelle per un nuovo giorno.",
+                guideText: "Benvenuto nel villaggio! Qui puoi riposare, commerciare, e prepararti per nuove avventure. Scegli cosa fare cliccando sui pulsanti.",
+                buttons: [
+                    {
+                        id: "btn_tavern",
+                        text: "GO TO COAL MINES",
+                        class: "action-button",
+                        hoverText: "Vai alle miniere di carbone della regione di Suxley. Per spostarti devi spendere 1 turno.",
+                        actions: [
+                            { type: "changeLocation", locationId: "coal_mine"  }
+                        ]
+                    },
+                    {
+                        id: "btn_market",
+                        text: "MERCATO",
+                        class: "action-button success",
+                        hoverText: "Visita il mercato per vendere i tuoi oggetti e comprare nuovi equipaggiamenti. I prezzi variano in base alla domanda.",
+                        actions: [
+                            { type: "addResource", resource: "gold", amount: 50 },
+                            { type: "addResource", resource: "wood", amount: -5 },
+                            { type: "showMessage", title: "MERCATO", message: "Hai venduto legno al mercato.\n\n+50 Oro\n-5 Legno" }
+                        ]
+                    },
+                    {
+                        id: "btn_forest",
+                        text: "FORESTA",
+                        class: "action-button danger",
+                        hoverText: "Avventurati nella foresta misteriosa. Attenzione: potresti incontrare creature pericolose, ma anche trovare tesori nascosti.",
+                        actions: [
+                            { type: "changeLocation", locationId: "dark_forest" },
+                            { type: "addResource", resource: "energy", amount: -10 }
+                        ]
+                    }
+                ]
+            },
+            
+            "coal_mine": {
+                id: "coal_mines",
+                title: "LE MINIERE DI CARBONE DI SUXLEY",
+                image: "coal_mines.jpg",
+                baseNarrative: "Qui viene estratto il carbone che può servire per alimentare i vaporetti e i treni per il trasporto delle merci. Puoi posizionare dei lavoratori qui come minatori di carbone. Spendi 1 lavoratore per ottenere 3 unità di carbone.",
+                guideText: "Sei nella foresta oscura. Qui ogni passo può nascondere pericoli o tesori. Procedi con cautela e scegli saggiamente le tue azioni.",
+                buttons: [
+                    {
+                        id: "btn_search",
+                        text: "INVIA UN MINATORE",
+                        class: "action-button",
+                        hoverText: "Impiega 1 minatore per ottenere +3 unità di carbone. Per farlo spendi 2 turni di gioco.",
+                        actions: [
+                            { type: "addResource", resource: "energy", amount: -2 },
+                            { type: "addResource", resource: "rubies", amount: 3 },
+                            { type: "addResource", resource: "gold", amount: -1 },
+                            { type: "showMessage", title: "TESORO TROVATO!", message: "Hai trovato un piccolo forziere nascosto!\n\n+25 Rubini\n+100 Oro\n-15 Energia" }
+                        ]
+                    },
+                    {
+                        id: "btn_rest",
+                        text: "RIPOSA",
+                        class: "action-button success",
+                        hoverText: "Fermati per riposare e recuperare energie. Un momento di pausa può fare la differenza in un lungo viaggio.",
+                        actions: [
+                            { type: "addResource", resource: "energy", amount: 20 },
+                            { type: "showMessage", title: "RIPOSO", message: "Ti sei riposato all'ombra di un grande albero.\n\n+20 Energia" }
+                        ]
+                    },
+                    {
+                        id: "btn_return",
+                        text: "TORNA AL VILLAGGIO",
+                        class: "action-button",
+                        hoverText: "Ritorna al villaggio dove potrai riposare, commerciare e pianificare la tua prossima mossa in sicurezza.",
+                        actions: [
+                            { type: "changeLocation", locationId: "village_start" },
+                            { type: "addResource", resource: "energy", amount: -5 }
+                        ]
+                    }
+                ]
+            },
+            
+            "ancient_ruins": {
+                id: "ancient_ruins",
+                title: "Le Rovine Antiche",
+                image: "ancient_ruins.jpg",
+                baseNarrative: "Davanti a te si ergono le rovine di una civiltà perduta. Le pietre coperte di muschio raccontano storie di un tempo dimenticato, mentre misteriose incisioni brillano di una luce tenue.",
+                guideText: "Sei arrivato alle rovine antiche. Questo luogo è pieno di misteri e antiche magie. Le tue scelte qui potrebbero cambiare il corso della tua avventura.",
+                buttons: [
+                    {
+                        id: "btn_investigate",
+                        text: "INVESTIGA",
+                        class: "action-button",
+                        hoverText: "Esamina attentamente le rovine per scoprire i loro segreti. Potresti trovare indizi, artefatti magici, o conoscenze perdute.",
+                        actions: [
+                            { type: "addResource", resource: "crystals", amount: 50 },
+                            { type: "addResource", resource: "energy", amount: -20 },
+                            { type: "addExperience", amount: 75 },
+                            { type: "showMessage", title: "SCOPERTA ARCHEOLOGICA", message: "Hai decifrato un'antica iscrizione!\n\n+50 Cristalli\n+75 Esperienza\n-20 Energia" }
+                        ]
+                    },
+                    {
+                        id: "btn_magic_ritual",
+                        text: "RITUALE MAGICO",
+                        class: "action-button success",
+                        hoverText: "Prova a compiere un antico rituale magico. Potrebbe portare grandi benefici, ma richiede molte risorse e non è privo di rischi.",
+                        actions: [
+                            { type: "addResource", resource: "rubies", amount: -50 },
+                            { type: "addResource", resource: "crystals", amount: -30 },
+                            { type: "addResource", resource: "gold", amount: 500 },
+                            { type: "addResource", resource: "energy", amount: 50 },
+                            { type: "addExperience", amount: 150 },
+                            { type: "showMessage", title: "MAGIA ANTICA", message: "Il rituale ha avuto successo! Gli spiriti antichi ti benedicono.\n\n+500 Oro\n+50 Energia\n+150 Esperienza\n\n-50 Rubini\n-30 Cristalli" }
+                        ]
+                    },
+                    {
+                        id: "btn_leave_ruins",
+                        text: "LASCIA LE ROVINE",
+                        class: "action-button danger",
+                        hoverText: "Abbandona le rovine e cerca un altro percorso. A volte la prudenza è la scelta migliore di fronte all'ignoto.",
+                        actions: [
+                            { type: "changeLocation", locationId: "village_start" }
+                        ]
+                    }
+                ]
+            }
+        };
+        
+        // Location corrente del giocatore
+        let currentGameLocation = "village_start";
+        
+        // Sistema di azioni per i pulsanti
+        class GameActionSystem {
+            static executeActions(actions) {
+                console.log('🎮 Eseguendo azioni:', actions);
+                
+                let totalMessage = "";
+                let showMessageAction = null;
+                
+                for (const action of actions) {
+                    switch (action.type) {
+                        case "addResource":
+                            const success = Player.addResource(action.resource, action.amount);
+                            if (success) {
+                                console.log(`💰 ${action.amount > 0 ? 'Aggiunto' : 'Rimosso'} ${Math.abs(action.amount)} ${action.resource}`);
+                            }
+                            break;
+                            
+                        case "addExperience":
+                            Player.addExperience(action.amount);
+                            console.log(`⭐ Aggiunta esperienza: ${action.amount}`);
+                            break;
+                            
+                        case "changeLocation":
+                            GameActionSystem.changeLocation(action.locationId);
+                            console.log(`📍 Cambiata location a: ${action.locationId}`);
+                            break;
+                            
+                        case "showMessage":
+                            showMessageAction = action;
+                            break;
+                            
+                        case "addItem":
+                            Player.addItem(action.itemId, action.quantity || 1);
+                            console.log(`🎒 Aggiunto oggetto: ${action.itemId} x${action.quantity || 1}`);
+                            break;
+                            
+                        case "removeItem":
+                            Player.removeItem(action.itemId, action.quantity || 1);
+                            console.log(`🗑️ Rimosso oggetto: ${action.itemId} x${action.quantity || 1}`);
+                            break;
+                            
+                        case "setFlag":
+                            Player.set(`gameData.gameFlags.${action.flag}`, action.value);
+                            console.log(`🚩 Flag impostato: ${action.flag} = ${action.value}`);
+                            break;
+                            
+                        default:
+                            console.warn('⚠️ Azione sconosciuta:', action.type);
+                    }
+                }
+                
+                // Aggiorna l'UI
+                updateResourcesDisplay();
+                
+                // Mostra il messaggio se presente (alla fine)
+                if (showMessageAction) {
+                    showInfoModal(
+                        showMessageAction.title,
+                        showMessageAction.message,
+                        null,
+                        'success'
+                    );
+                }
+            }
+            
+            static changeLocation(locationId) {
+                console.log(`🗺️ Cambiando location da ${currentGameLocation} a ${locationId}`);
+                
+                if (gameLocations[locationId]) {
+                    currentGameLocation = locationId;
+                    Player.set('gameData.currentLocation', locationId);
+                    loadGameLocation(locationId);
+                } else {
+                    console.error('❌ Location non trovata:', locationId);
+                    showInfoModal(
+                        "ERRORE",
+                        `Location "${locationId}" non trovata nel database di gioco.`,
+                        null,
+                        'info'
+                    );
+                }
+            }
+        }
+        
+        // Funzione per caricare una location dinamicamente
+        function loadGameLocation(locationId) {
+            console.log('🔄 INIZIO loadGameLocation:', locationId);
+            
+            const location = gameLocations[locationId];
+            
+            if (!location) {
+                console.error('❌ Location non trovata:', locationId);
+                return false;
+            }
+            
+            console.log('✅ Location trovata:', location.title);
+            console.log('📋 Pulsanti da caricare:', location.buttons.length);
+            
+            // Aggiorna il titolo
+            const titleElement = document.getElementById('game-ui-title');
+            console.log('🔍 Title element:', titleElement);
+            if (titleElement) {
+                titleElement.textContent = location.title.toUpperCase();
+                titleElement.setAttribute('data-text', location.title.toUpperCase());
+                console.log('✅ Titolo aggiornato:', location.title);
+            }
+            
+            // Aggiorna l'immagine
+            const imageContainer = document.querySelector('.image-container-game');
+            console.log('🔍 Image container:', imageContainer);
+            if (imageContainer) {
+                if (location.image && location.image !== "") {
+                    imageContainer.innerHTML = `<img src="${location.image}" alt="${location.title}" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.3s;">`;
+                } else {
+                    imageContainer.innerHTML = `<div class="image-placeholder">${location.title}</div>`;
+                }
+                console.log('✅ Immagine aggiornata');
+            }
+            
+            // Aggiorna il testo narrativo di base
+            currentLocationBaseText = location.guideText;
+            console.log('✅ Testo base impostato:', currentLocationBaseText.substring(0, 50) + '...');
+            changeNarrativeText('base');
+            
+            // Aggiorna i pulsanti dinamicamente
+            console.log('🔘 Aggiornando pulsanti...');
+            updateGameButtons(location.buttons);
+            
+            console.log('✅ Location caricata completamente:', location.title);
+            return true;
+        }
+        
+        // Funzione per aggiornare i pulsanti dinamicamente
+        function updateGameButtons(buttons) {
+            console.log('🔘 INIZIO updateGameButtons, pulsanti da creare:', buttons.length);
+            
+            const buttonsSection = document.querySelector('.buttons-section');
+            console.log('🔍 Buttons section trovata:', buttonsSection);
+            
+            if (!buttonsSection) {
+                console.error('❌ .buttons-section non trovata nel DOM!');
+                return;
+            }
+            
+            // Pulisce i pulsanti esistenti
+            buttonsSection.innerHTML = '';
+            console.log('🧹 Pulsanti esistenti rimossi');
+            
+            // Crea i nuovi pulsanti
+            buttons.forEach((buttonData, index) => {
+                console.log(`🔘 Creando pulsante ${index + 1}:`, buttonData.text);
+                
+                const button = document.createElement('button');
+                button.id = buttonData.id;
+                button.className = buttonData.class;
+                button.textContent = buttonData.text;
+                
+                // Aggiunge gli event listener
+                button.addEventListener('click', () => {
+                    console.log(`🔘 Click su pulsante: ${buttonData.text}`);
+                    GameActionSystem.executeActions(buttonData.actions);
+                });
+                
+                button.addEventListener('mouseenter', () => {
+                    changeNarrativeText('custom', buttonData.hoverText);
+                });
+                
+                button.addEventListener('mouseleave', () => {
+                    changeNarrativeText('base');
+                });
+                
+                buttonsSection.appendChild(button);
+                console.log(`✅ Pulsante "${buttonData.text}" aggiunto al DOM`);
+            });
+            
+            console.log(`✅ Tutti i ${buttons.length} pulsanti sono stati creati e aggiunti`);
+        }
+        
+        // Variabile per memorizzare il testo base della location corrente
+        let currentLocationBaseText = "Caricamento...";
+        
+        // Testi dinamici per il box narrativo (aggiornato)
+        const narrativeTexts = {
+            base: () => currentLocationBaseText,
+            backMenu: "Torna al menu principale del gioco. Attenzione: assicurati di aver salvato i tuoi progressi prima di uscire dalla sessione corrente.",
+            volume: "Regola il volume dell'audio del gioco. Clicca sull'icona del megafono per attivare/disattivare l'audio, oppure trascina lo slider per regolare il livello.",
+            custom: null // Per testi personalizzati
+        };
+
+        // Funzione per inizializzare il Game UI
+        function initializeGameUI() {
+            console.log('🎮 Inizializzando Game UI...');
+            
+            // Carica la location di default o quella salvata
+            const savedLocation = Player.get('gameData.currentLocation') || 'village_start';
+            console.log('📍 Location da caricare:', savedLocation);
+            currentGameLocation = savedLocation;
+            
+            // Carica la location corrente
+            const loadSuccess = loadGameLocation(currentGameLocation);
+            if (!loadSuccess) {
+                console.warn('⚠️ Fallback alla location di default...');
+                currentGameLocation = 'village_start';
+                Player.set('gameData.currentLocation', 'village_start');
+                loadGameLocation('village_start');
+            }
+            
+            // Aggiorna le risorse
+            updateResourcesDisplay();
+            
+            // Inizializza il controllo volume dal Player
+            const slider = document.getElementById('volume-slider');
+            if (slider) {
+                slider.value = Player.get('settings.audio_volume');
+                updateVolumeIcon();
+                updateVolumeSlider();
+            }
+            
+            // Setup event listener per il footer
+            setupGameUIFooterEventListeners();
+            
+            console.log('✅ Game UI inizializzato con location:', currentGameLocation);
+        }
+
+        // Funzione per cambiare il testo narrativo (aggiornata)
+        function changeNarrativeText(textKey, customText = null) {
+            const narrativeContent = document.getElementById('game-narrative-content');
+            if (!narrativeContent) return;
+            
+            let textToShow = "";
+            
+            if (textKey === 'custom' && customText) {
+                textToShow = customText;
+            } else if (textKey === 'base') {
+                textToShow = typeof narrativeTexts.base === 'function' ? narrativeTexts.base() : narrativeTexts.base;
+            } else if (narrativeTexts[textKey]) {
+                textToShow = typeof narrativeTexts[textKey] === 'function' ? narrativeTexts[textKey]() : narrativeTexts[textKey];
+            } else {
+                console.warn('⚠️ Testo narrativo non trovato:', textKey);
+                textToShow = currentLocationBaseText;
+            }
+            
+            narrativeContent.textContent = textToShow;
+        }
+
+        // Funzione per tornare al testo base
+        function resetNarrativeText() {
+            changeNarrativeText('base');
+        }
+
+        // Funzioni per i pulsanti di azione (ora gestite dinamicamente)
+        function actionButton1() {
+            console.log('⚠️ actionButton1 chiamata - ora gestita dinamicamente');
+        }
+
+        function actionButton2() {
+            console.log('⚠️ actionButton2 chiamata - ora gestita dinamicamente');
+        }
+
+        function actionButton3() {
+            console.log('⚠️ actionButton3 chiamata - ora gestita dinamicamente');
+        }
+
+        // Funzione per aggiornare i valori delle risorse nell'UI
+        function updateResourcesDisplay() {
+            const rubiesElement = document.getElementById('rubies-value');
+            const goldElement = document.getElementById('gold-value');
+            const energyElement = document.getElementById('energy-value');
+            const crystalsElement = document.getElementById('crystals-value');
+            const woodElement = document.getElementById('wood-value');
+            const stoneElement = document.getElementById('stone-value');
+            
+            if (rubiesElement) rubiesElement.textContent = Player.get('resources.rubies').toLocaleString();
+            if (goldElement) goldElement.textContent = Player.get('resources.gold').toLocaleString();
+            if (energyElement) energyElement.textContent = `${Player.get('resources.energy')}/${Player.get('resources.maxEnergy')}`;
+            if (crystalsElement) crystalsElement.textContent = Player.get('resources.crystals').toLocaleString();
+            if (woodElement) woodElement.textContent = Player.get('resources.wood').toLocaleString();
+            if (stoneElement) stoneElement.textContent = Player.get('resources.stone').toLocaleString();
+        }
+
+        // Funzione per salvare i dati del giocatore (ora gestita automaticamente)
+        function savePlayerData() {
+            return Player.saveData(true);
+        }
+
+        // ================= VOLUME CONTROL FUNCTIONS =================
+        
+        // Funzione per aggiornare la barra di progresso del volume
+        function updateVolumeSlider() {
+            const slider = document.getElementById('volume-slider');
+            if (slider) {
+                const displayVolume = Player.get('settings.is_muted') ? 0 : Player.get('settings.audio_volume');
+                const percentage = displayVolume;
+                
+                // Aggiorna la variabile CSS per la barra di progresso
+                slider.style.setProperty('--volume-percent', `${percentage}%`);
+                
+                // Aggiorna anche il valore dello slider stesso
+                slider.value = displayVolume;
+                
+                console.log(`🔊 Slider aggiornato: ${percentage}% (muted: ${Player.get('settings.is_muted')})`);
+            } else {
+                console.warn('⚠️ Slider non trovato nel DOM');
+            }
+        }
+
+        // Funzione per aggiornare l'icona del volume
+        function updateVolumeIcon() {
+            const volumeIcon = document.querySelector('.volume-icon');
+            
+            if (volumeIcon) {
+                if (Player.get('settings.is_muted') || Player.get('settings.audio_volume') == 0) {
+                    volumeIcon.textContent = '🔇'; // Icona mutato
+                } else if (Player.get('settings.audio_volume') < 30) {
+                    volumeIcon.textContent = '🔈'; // Volume basso
+                } else if (Player.get('settings.audio_volume') < 70) {
+                    volumeIcon.textContent = '🔉'; // Volume medio
+                } else {
+                    volumeIcon.textContent = '🔊'; // Volume alto
+                }
+            }
+        }
+
+        // Funzione per cambiare il volume
+        function changeVolume(value) {
+            const oldVolume = Player.get('settings.audio_volume');
+            Player.set('settings.audio_volume', parseInt(value));
+            
+            if (value > 0 && Player.get('settings.is_muted')) {
+                Player.set('settings.is_muted', false);
+            }
+            
+            console.log(`🎵 Volume cambiato da ${oldVolume} a ${value}`);
+            
+            // Aggiorna la barra di progresso del volume PRIMA dell'icona
+            updateVolumeSlider();
+            updateVolumeIcon();
+            
+            // I dati si salvano automaticamente con Player.set()
+            console.log(`Volume impostato a: ${Player.get('settings.audio_volume')}%`);
+        }
+
+        // Funzione per mutare/smutare l'audio
+        function toggleMute() {
+            const slider = document.getElementById('volume-slider');
+            
+            if (!Player.get('settings.is_muted')) {
+                // Muta l'audio
+                Player.set('settings.is_muted', true);
+                if (slider) slider.value = 0;
+            } else {
+                // Ripristina l'audio
+                Player.set('settings.is_muted', false);
+                if (slider) slider.value = Player.get('settings.audio_volume');
+            }
+            
+            updateVolumeIcon();
+            updateVolumeSlider();
+            
+            console.log(`Audio ${Player.get('settings.is_muted') ? 'mutato' : 'attivato'} - Volume: ${Player.get('settings.audio_volume')}%`);
+        }
+
+        // Funzione per tornare al menu principale
+        function backToMainMenu() {
+            console.log('🏠 Richiesta ritorno al menu principale...');
+            showConfirmModal(
+                "RITORNA AL MENU",
+                "Sei sicuro di voler tornare al menu principale?\n\nI progressi verranno salvati automaticamente.",
+                function() {
+                    console.log('✅ Confermato ritorno al menu');
+                    // Forza salvataggio prima di tornare al menu
+                    Player.saveData(true);
+                    
+                    const success = showSection('main-menu-section');
+                    if (success) {
+                        console.log('🏠 Ritornato al menu principale con successo');
+                    } else {
+                        console.error('❌ Errore nel ritorno al menu principale');
+                        showInfoModal(
+                            "ERRORE",
+                            "Errore nel cambio sezione.\n\nRiprova più tardi.",
+                            null,
+                            'info'
+                        );
+                    }
+                },
+                function() {
+                    console.log('❌ Ritorno al menu annullato');
+                }
+            );
+        }
+
+        // Funzione per cambiare il volume
+        function changeVolume(value) {
+            const oldVolume = Player.get('settings.audio_volume');
+            Player.set('settings.audio_volume', parseInt(value));
+            
+            if (value > 0 && Player.get('settings.is_muted')) {
+                Player.set('settings.is_muted', false);
+            }
+            
+            console.log(`🎵 Volume cambiato da ${oldVolume} a ${value}`);
+            
+            // Aggiorna la barra di progresso del volume PRIMA dell'icona
+            updateVolumeSlider();
+            updateVolumeIcon();
+            
+            // I dati si salvano automaticamente con Player.set()
+            console.log(`Volume impostato a: ${Player.get('settings.audio_volume')}%`);
+        }
+
+        // Funzione per mutare/smutare l'audio
+        function toggleMute() {
+            const slider = document.getElementById('volume-slider');
+            
+            if (!Player.get('settings.is_muted')) {
+                // Muta l'audio
+                Player.set('settings.is_muted', true);
+                if (slider) slider.value = 0;
+            } else {
+                // Ripristina l'audio
+                Player.set('settings.is_muted', false);
+                if (slider) slider.value = Player.get('settings.audio_volume');
+            }
+            
+            updateVolumeIcon();
+            updateVolumeSlider();
+            
+            console.log(`Audio ${Player.get('settings.is_muted') ? 'mutato' : 'attivato'} - Volume: ${Player.get('settings.audio_volume')}%`);
+        }
+
+        // Funzione per tornare al menu principale
+        function backToMainMenu() {
+            console.log('🏠 Richiesta ritorno al menu principale...');
+            showConfirmModal(
+                "RITORNA AL MENU",
+                "Sei sicuro di voler tornare al menu principale?\n\nI progressi verranno salvati automaticamente.",
+                function() {
+                    console.log('✅ Confermato ritorno al menu');
+                    // Forza salvataggio prima di tornare al menu
+                    Player.saveData(true);
+                    
+                    const success = showSection('main-menu-section');
+                    if (success) {
+                        console.log('🏠 Ritornato al menu principale con successo');
+                    } else {
+                        console.error('❌ Errore nel ritorno al menu principale');
+                        showInfoModal(
+                            "ERRORE",
+                            "Errore nel cambio sezione.\n\nRiprova più tardi.",
+                            null,
+                            'info'
+                        );
+                    }
+                },
+                function() {
+                    console.log('❌ Ritorno al menu annullato');
+                }
+            );
+        }
+
+        // Funzione per aggiornare l'icona del volume
+        function updateVolumeIcon() {
+            const volumeIcon = document.querySelector('.volume-icon');
+            
+            if (volumeIcon) {
+                if (Player.get('settings.is_muted') || Player.get('settings.audio_volume') == 0) {
+                    volumeIcon.textContent = '🔇'; // Icona mutato
+                } else if (Player.get('settings.audio_volume') < 30) {
+                    volumeIcon.textContent = '🔈'; // Volume basso
+                } else if (Player.get('settings.audio_volume') < 70) {
+                    volumeIcon.textContent = '🔉'; // Volume medio
+                } else {
+                    volumeIcon.textContent = '🔊'; // Volume alto
+                }
+            }
+        }
+
+        // Funzione per impostare gli event listener del footer Game UI
+        function setupGameUIFooterEventListeners() {
+            // Aggiungi event listener per hover sui elementi del footer
+            const backButton = document.querySelector('.back-button');
+            const volumeControl = document.querySelector('.volume-control');
+            
+            if (backButton) {
+                backButton.addEventListener('mouseenter', () => changeNarrativeText('backMenu'));
+                backButton.addEventListener('mouseleave', resetNarrativeText);
+            }
+            
+            if (volumeControl) {
+                volumeControl.addEventListener('mouseenter', () => changeNarrativeText('volume'));
+                volumeControl.addEventListener('mouseleave', resetNarrativeText);
+            }
+            
+            console.log('✅ Event listeners footer configurati');
+        }
+
+        // ================= GLOBAL EVENT LISTENERS =================
+        
+        // La gestione tastiera è ora integrata nel modal system sopra
+
+        // ================= INITIALIZATION =================
+        
+        // Inizializzazione
+        window.addEventListener('load', function() {
+            // Inizializza con il main menu
+            showSection('main-menu-section');
+            console.log('🎮 Gioco inizializzato - Menu principale attivo');
+        });
+
+        // Gestione ridimensionamento finestra
+        window.addEventListener('resize', function() {
+            // Il CSS si occupa automaticamente del ridimensionamento
+            // Qui potresti aggiungere logica aggiuntiva se necessaria
+        });
+
+        // Simulazione aggiornamento risorse in tempo reale (solo per Game UI)
+        setInterval(function() {
+            if (currentSection === 'game-ui-section') {
+                // Esempio: l'energia si rigenera lentamente
+                const currentEnergy = Player.get('resources.energy');
+                const maxEnergy = Player.get('resources.maxEnergy');
+                
+                if (currentEnergy < maxEnergy) {
+                    Player.set('resources.energy', Math.min(currentEnergy + 1, maxEnergy));
+                    updateResourcesDisplay();
+                }
+                
+                // Esempio: aggiungi oro passivamente ogni 5 secondi
+                Player.addResource('gold', 10);
+                updateResourcesDisplay();
+            }
+        }, 5000); // Ogni 5 secondi
+        
+        // ================= SAVEGAME IMPORT/EXPORT SYSTEM =================
+        
+        // Funzione per scaricare il savegame come file JSON
+        function downloadSavegame() {
+            try {
+                // Prepara i dati del savegame con metadati aggiuntivi
+                const savegameData = {
+                    gameTitle: "Game SPA Adventure",
+                    exportDate: new Date().toISOString(),
+                    exportedBy: Player.get('profile.playerName') || 'Unknown Player',
+                    gameVersion: Player.get('meta.version'),
+                    playerLevel: Player.get('profile.level'),
+                    playerData: Player.data
+                };
+                
+                // Crea il file JSON
+                const jsonString = JSON.stringify(savegameData, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                
+                // Crea un nome file significativo
+                const playerName = Player.get('profile.playerName').replace(/[^a-zA-Z0-9]/g, '_');
+                const level = Player.get('profile.level');
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+                const filename = `savegame_${playerName}_lvl${level}_${timestamp}.json`;
+                
+                // Crea link temporaneo per download
+                const url = URL.createObjectURL(blob);
+                const downloadLink = document.createElement('a');
+                downloadLink.href = url;
+                downloadLink.download = filename;
+                downloadLink.style.display = 'none';
+                
+                // Esegue il download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                // Pulisce l'URL temporaneo
+                URL.revokeObjectURL(url);
+                
+                // Log successo
+                console.log('💾 Savegame scaricato:', filename);
+                
+                showInfoModal(
+                    "DOWNLOAD COMPLETATO",
+                    `Savegame scaricato con successo!\n\nFile: ${filename}\nLivello: ${level}\nTempo di gioco: ${Math.floor(Player.get('meta.playTime') / 60)} minuti`,
+                    null,
+                    'download'
+                );
+                
+            } catch (error) {
+                console.error('❌ Errore durante il download del savegame:', error);
+                showInfoModal(
+                    "ERRORE DOWNLOAD",
+                    "Errore durante il download del savegame.\n\nControlla la console per dettagli.",
+                    null,
+                    'info'
+                );
+            }
+        }
+        
+        // Funzione per gestire il caricamento del file savegame
+        function handleSavegameFileLoad(event) {
+            const file = event.target.files[0];
+            
+            if (!file) {
+                console.log('❌ Nessun file selezionato');
+                return;
+            }
+            
+            // Verifica che sia un file JSON
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                showInfoModal(
+                    "FILE NON VALIDO",
+                    "Per favore seleziona un file JSON valido.",
+                    null,
+                    'info'
+                );
+                return;
+            }
+            
+            // Legge il file
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const jsonContent = e.target.result;
+                    const savegameData = JSON.parse(jsonContent);
+                    
+                    // Validazione del file savegame
+                    if (!validateSavegameFile(savegameData)) {
+                        showInfoModal(
+                            "FILE CORROTTO",
+                            "File savegame non valido o corrotto.",
+                            null,
+                            'info'
+                        );
+                        return;
+                    }
+                    
+                    // Mostra informazioni del savegame prima dell'import
+                    const playerName = savegameData.playerData?.profile?.playerName || 'Unknown';
+                    const level = savegameData.playerData?.profile?.level || 0;
+                    const exportDate = new Date(savegameData.exportDate).toLocaleString();
+                    const playTime = Math.floor((savegameData.playerData?.meta?.playTime || 0) / 60);
+                    
+                    const confirmMessage = `IMPORTA SAVEGAME\n─────────────────────\nGiocatore: ${playerName}\nLivello: ${level}\nTempo di gioco: ${playTime} minuti\nData export: ${exportDate}\n─────────────────────\n\nATTENZIONE: Questo sovrascriverà i tuoi dati attuali!\n\nVuoi procedere con l'importazione?`;
+                    
+                    showConfirmModal(
+                        "CONFERMA IMPORTAZIONE",
+                        confirmMessage,
+                        function() {
+                            importSavegame(savegameData);
+                        }
+                    );
+                    
+                } catch (error) {
+                    console.error('❌ Errore parsing JSON:', error);
+                    showInfoModal(
+                        "ERRORE LETTURA FILE",
+                        "Errore durante la lettura del file.\n\nAssicurati che sia un file JSON valido.",
+                        null,
+                        'info'
+                    );
+                }
+            };
+            
+            reader.onerror = function() {
+                console.error('❌ Errore durante la lettura del file');
+                showInfoModal(
+                    "ERRORE FILE",
+                    "Errore durante la lettura del file.",
+                    null,
+                    'info'
+                );
+            };
+            
+            reader.readAsText(file);
+            
+            // Reset input per permettere di selezionare lo stesso file di nuovo
+            event.target.value = '';
+        }
+        
+        // Funzione per validare il file savegame
+        function validateSavegameFile(savegameData) {
+            try {
+                // Controlli di base
+                if (!savegameData || typeof savegameData !== 'object') {
+                    console.error('❌ Savegame non è un oggetto valido');
+                    return false;
+                }
+                
+                // Verifica presenza dati essenziali
+                if (!savegameData.playerData) {
+                    console.error('❌ playerData mancante nel savegame');
+                    return false;
+                }
+                
+                const playerData = savegameData.playerData;
+                
+                // Verifica struttura base
+                const requiredSections = ['meta', 'profile', 'resources', 'settings'];
+                for (const section of requiredSections) {
+                    if (!playerData[section] || typeof playerData[section] !== 'object') {
+                        console.error(`❌ Sezione ${section} mancante o non valida`);
+                        return false;
+                    }
+                }
+                
+                // Verifica campi critici
+                if (typeof playerData.profile.level !== 'number' || 
+                    typeof playerData.profile.experience !== 'number' ||
+                    typeof playerData.resources.gold !== 'number') {
+                    console.error('❌ Dati numerici non validi nel savegame');
+                    return false;
+                }
+                
+                console.log('✅ Savegame validato con successo');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Errore durante la validazione:', error);
+                return false;
+            }
+        }
+        
+        // Funzione per importare il savegame
+        function importSavegame(savegameData) {
+            try {
+                // Ferma l'auto-save temporaneamente
+                Player.stopAutoSave();
+                
+                // Backup dei dati correnti (per sicurezza)
+                const currentData = JSON.stringify(Player.data);
+                sessionStorage.setItem('backup_before_import', currentData);
+                
+                // Importa i nuovi dati
+                Player.data = savegameData.playerData;
+                
+                // Aggiorna i metadati
+                Player.data.meta.lastSaved = new Date().toISOString();
+                Player.data.meta.sessionStart = new Date().getTime();
+                
+                // Salva immediatamente
+                const saveSuccess = Player.saveData(true);
+                
+                if (saveSuccess) {
+                    // Riavvia l'auto-save
+                    Player.startAutoSave();
+                    
+                    // Aggiorna l'UI se siamo nel game UI
+                    if (currentSection === 'game-ui-section') {
+                        updateResourcesDisplay();
+                        
+                        // Aggiorna anche il volume se necessario
+                        const slider = document.getElementById('volume-slider');
+                        if (slider) {
+                            slider.value = Player.get('settings.audio_volume');
+                            updateVolumeIcon();
+                            updateVolumeSlider();
+                        }
+                    }
+                    
+                    console.log('✅ Savegame importato con successo');
+                    
+                    showInfoModal(
+                        "IMPORTAZIONE COMPLETATA",
+                        `Savegame importato con successo!\n\nGiocatore: ${Player.get('profile.playerName')}\nLivello: ${Player.get('profile.level')}\nOro: ${Player.get('resources.gold').toLocaleString()}\n\nI tuoi dati sono stati aggiornati!`,
+                        null,
+                        'success'
+                    );
+                    
+                    // Se siamo nel main menu, non fare nulla
+                    // Se siamo altrove, rimaniamo dove siamo con i nuovi dati
+                    
+                } else {
+                    throw new Error('Fallimento salvataggio dopo import');
+                }
+                
+            } catch (error) {
+                console.error('❌ Errore durante l\'importazione:', error);
+                
+                // Ripristina backup se disponibile
+                const backup = sessionStorage.getItem('backup_before_import');
+                if (backup) {
+                    try {
+                        Player.data = JSON.parse(backup);
+                        Player.saveData(true);
+                        Player.startAutoSave();
+                        console.log('🔄 Backup ripristinato dopo errore');
+                    } catch (backupError) {
+                        console.error('❌ Errore critico nel ripristino backup:', backupError);
+                    }
+                }
+                
+                showInfoModal(
+                    "ERRORE IMPORTAZIONE",
+                    "Errore durante l'importazione del savegame.\n\nI tuoi dati precedenti sono stati ripristinati.",
+                    null,
+                    'info'
+                );
+            } finally {
+                // Pulisce il backup temporaneo
+                sessionStorage.removeItem('backup_before_import');
+            }
+        }
+        
+        // ================= ESEMPI DI UTILIZZO PLAYER SYSTEM =================
+        
+        // Funzioni di esempio per testare il sistema Player
+        window.gameDevTools = {
+            // Test delle risorse
+            addGold: (amount = 1000) => {
+                Player.addResource('gold', amount);
+                updateResourcesDisplay();
+                console.log(`💰 Aggiunti ${amount} oro`);
+            },
+            
+            addRubies: (amount = 100) => {
+                Player.addResource('rubies', amount);
+                updateResourcesDisplay();
+                console.log(`💎 Aggiunti ${amount} rubini`);
+            },
+            
+            // Test esperienza e livello
+            addXP: (amount = 50) => {
+                Player.addExperience(amount);
+                console.log(`⭐ Aggiunti ${amount} XP. Livello: ${Player.get('profile.level')}`);
+            },
+            
+            // Test inventario
+            addSword: () => {
+                Player.addItem('sword_legendary', 1);
+                console.log('⚔️ Spada leggendaria aggiunta!');
+            },
+            
+            addPotion: (quantity = 5) => {
+                Player.addItem('potion_health', quantity);
+                console.log(`🧪 Aggiunte ${quantity} pozioni salute`);
+            },
+            
+            // Test quest
+            addQuest: () => {
+                Player.addQuest({
+                    id: 'test_quest',
+                    title: 'Missione di Test',
+                    description: 'Completa questa missione di test',
+                    progress: 0,
+                    maxProgress: 100
+                });
+                console.log('📋 Nuova quest aggiunta!');
+            },
+            
+            completeQuest: () => {
+                Player.completeQuest('test_quest');
+                console.log('✅ Quest completata!');
+            },
+            
+            // Test salvataggio
+            forceSave: () => {
+                Player.saveData(true);
+                console.log('💾 Salvataggio forzato completato!');
+            },
+            
+            // Debug info
+            showStats: () => {
+                console.log('📊 STATISTICHE GIOCATORE:');
+                console.log('Livello:', Player.get('profile.level'));
+                console.log('Esperienza:', Player.get('profile.experience'));
+                console.log('Oro:', Player.get('resources.gold'));
+                console.log('Rubini:', Player.get('resources.rubies'));
+                console.log('Quest attive:', Player.get('progress.activeQuests').length);
+                console.log('Quest completate:', Player.get('progress.completedQuests').length);
+                console.log('Tempo di gioco:', Math.floor(Player.get('meta.playTime') / 60), 'minuti');
+                console.log('Location corrente:', currentGameLocation);
+            },
+            
+            exportSave: () => {
+                const saveData = Player.exportSave();
+                console.log('📤 DATI ESPORTATI (copia questo testo):');
+                console.log(saveData);
+                return saveData;
+            },
+            
+            downloadSave: () => {
+                downloadSavegame();
+                console.log('💾 Download savegame avviato!');
+            },
+            
+            importSave: (saveString) => {
+                if (Player.importSave(saveString)) {
+                    updateResourcesDisplay();
+                    console.log('📥 Dati importati con successo!');
+                } else {
+                    console.log('❌ Errore nell\'importazione');
+                }
+            },
+            
+            resetGame: () => {
+                Player.resetGame();
+                // Non c'è più bisogno di controllare il valore di ritorno
+                // perché ora è gestito con callback nel modale
+            },
+            
+            // === NUOVI COMANDI PER IL SISTEMA DINAMICO ===
+            
+            // Test location system
+            goToVillage: () => {
+                GameActionSystem.changeLocation('village_start');
+                console.log('🏘️ Sei tornato al villaggio!');
+            },
+            
+            goToForest: () => {
+                GameActionSystem.changeLocation('dark_forest');
+                console.log('🌲 Sei entrato nella foresta oscura!');
+            },
+            
+            goToRuins: () => {
+                GameActionSystem.changeLocation('ancient_ruins');
+                console.log('🏛️ Hai raggiunto le rovine antiche!');
+            },
+            
+            // Test azioni multiple
+            testActions: () => {
+                const testActions = [
+                    { type: "addResource", resource: "gold", amount: 100 },
+                    { type: "addResource", resource: "energy", amount: -10 },
+                    { type: "addExperience", amount: 25 },
+                    { type: "showMessage", title: "TEST AZIONI", message: "Test completato!\n\n+100 Oro\n+25 XP\n-10 Energia" }
+                ];
+                GameActionSystem.executeActions(testActions);
+                console.log('🧪 Test azioni multiple eseguito!');
+            },
+            
+            // Lista tutte le location disponibili
+            listLocations: () => {
+                console.log('🗺️ LOCATION DISPONIBILI:');
+                for (const [id, location] of Object.entries(gameLocations)) {
+                    console.log(`• ${id}: "${location.title}"`);
+                }
+            },
+            
+            // Mostra dettagli location corrente
+            currentLocation: () => {
+                const location = gameLocations[currentGameLocation];
+                console.log('📍 LOCATION CORRENTE:');
+                console.log('ID:', currentGameLocation);
+                console.log('Titolo:', location.title);
+                console.log('Pulsanti disponibili:', location.buttons.length);
+                console.log('Pulsanti:', location.buttons.map(b => b.text).join(', '));
+            },
+            
+            // Ricarica location corrente
+            reloadLocation: () => {
+                loadGameLocation(currentGameLocation);
+                console.log('🔄 Location ricaricata:', currentGameLocation);
+            },
+            
+            // Debug completo dell'UI
+            debugUI: () => {
+                console.log('🔍 === DEBUG UI COMPLETO ===');
+                console.log('Sezione corrente:', currentSection);
+                console.log('Location corrente:', currentGameLocation);
+                
+                const gameSection = document.getElementById('game-ui-section');
+                console.log('Game UI section nel DOM:', !!gameSection);
+                console.log('Game UI section visibile:', gameSection?.classList.contains('active'));
+                
+                const buttonsSection = document.querySelector('.buttons-section');
+                console.log('Buttons section nel DOM:', !!buttonsSection);
+                console.log('Pulsanti attualmente nel DOM:', buttonsSection?.children.length || 0);
+                
+                const titleElement = document.getElementById('game-ui-title');
+                console.log('Title element nel DOM:', !!titleElement);
+                console.log('Titolo corrente:', titleElement?.textContent);
+                
+                const narrativeContent = document.getElementById('game-narrative-content');
+                console.log('Narrative content nel DOM:', !!narrativeContent);
+                console.log('Testo narrativo corrente:', narrativeContent?.textContent?.substring(0, 50) + '...');
+                
+                if (currentGameLocation) {
+                    const location = gameLocations[currentGameLocation];
+                    console.log('Location data esistente:', !!location);
+                    if (location) {
+                        console.log('Titolo location:', location.title);
+                        console.log('Numero pulsanti definiti:', location.buttons.length);
+                    }
+                }
+                
+                console.log('🔍 === FINE DEBUG ===');
+            },
+            
+            // Forza ricaricamento completo
+            forceReload: () => {
+                console.log('🔧 FORZANDO RICARICAMENTO COMPLETO...');
+                if (currentSection === 'game-ui-section') {
+                    initializeGameUI();
+                } else {
+                    console.log('⚠️ Non sei nel Game UI, vai prima lì');
+                }
+            },
+            
+            // Test volume slider
+            testVolumeSlider: () => {
+                console.log('🔊 === TEST VOLUME SLIDER ===');
+                const slider = document.getElementById('volume-slider');
+                console.log('Slider trovato:', !!slider);
+                if (slider) {
+                    console.log('Valore corrente slider DOM:', slider.value);
+                    console.log('Volume nel Player:', Player.get('settings.audio_volume'));
+                    console.log('Muted:', Player.get('settings.is_muted'));
+                    
+                    console.log('CSS --volume-percent corrente:', slider.style.getPropertyValue('--volume-percent'));
+                    
+                    console.log('🔧 Forzando aggiornamento slider...');
+                    updateVolumeSlider();
+                    updateVolumeIcon();
+                    
+                    console.log('CSS --volume-percent dopo update:', slider.style.getPropertyValue('--volume-percent'));
+                    console.log('Valore slider dopo update:', slider.value);
+                } else {
+                    console.error('❌ Slider audio non trovato nel DOM!');
+                }
+            },
+            
+            // Set volume manualmente per test
+            setVolume: (value) => {
+                console.log(`🔊 Impostando volume a ${value}%`);
+                changeVolume(value);
+            }
+        };
+        
+        // Messaggio di benvenuto per sviluppatori
+        console.log(`
+🎮 GAME DEV TOOLS ATTIVI - SISTEMA DINAMICO!
+─────────────────────────────────────────────
+
+🎯 SISTEMA LOCATION DINAMICO IMPLEMENTATO!
+• Database JSON per location, pulsanti e azioni
+• Sistema di azioni configurabile (addResource, changeLocation, etc.)
+• Interfaccia completamente dinamica e data-driven
+• 3 location di esempio: villaggio, foresta, rovine
+
+📍 NUOVI COMANDI LOCATION:
+• gameDevTools.listLocations() - Lista tutte le location
+• gameDevTools.currentLocation() - Info location corrente
+• gameDevTools.goToVillage() - Vai al villaggio
+• gameDevTools.goToForest() - Vai alla foresta oscura
+• gameDevTools.goToRuins() - Vai alle rovine antiche
+• gameDevTools.reloadLocation() - Ricarica location
+• gameDevTools.testActions() - Test azioni multiple
+
+🔧 COMANDI CLASSICI:
+• gameDevTools.addGold(1000) - Aggiungi oro
+• gameDevTools.addRubies(100) - Aggiungi rubini  
+• gameDevTools.addXP(50) - Aggiungi esperienza
+• gameDevTools.showStats() - Mostra statistiche complete
+• gameDevTools.downloadSave() - Scarica savegame
+
+🎨 STRUTTURA DATI LOCATION:
+Ogni location ha:
+• id, title, image - Identificazione e visuals
+• baseNarrative, guideText - Testi descrittivi
+• buttons[] - Array di pulsanti dinamici con:
+  ├─ text, class, hoverText - Aspetto e descrizione
+  └─ actions[] - Azioni da eseguire al click
+
+🎯 TIPI DI AZIONI SUPPORTATE:
+• addResource - Modifica risorse (oro, energie, etc.)
+• addExperience - Aggiunge esperienza al giocatore
+• changeLocation - Cambia location di gioco
+• showMessage - Mostra modale informativo
+• addItem/removeItem - Gestione inventario
+• setFlag - Imposta flag di gioco
+
+🏗️ COME AGGIUNGERE NUOVE LOCATION:
+1. Aggiungi entry al database gameLocations
+2. Definisci buttons[] con azioni appropriate
+3. Usa GameActionSystem.changeLocation() per navegare
+
+Sistema di auto-save attivo ogni 5 secondi! 💾
+Sistema di modali corretto ed exit a Google funzionante! 🌐
+        `);
+        
+        // Log iniziale dello stato del giocatore
+        setTimeout(() => {
+            console.log('🎯 STATO INIZIALE GIOCATORE:');
+            gameDevTools.showStats();
+            console.log('\n📍 LOCATION INIZIALI DISPONIBILI:');
+            gameDevTools.listLocations();
+            console.log('\n🎮 Vai nel Game UI per testare il sistema dinamico!');
+        }, 1000);
+    </script>
+</body>
+</html>
