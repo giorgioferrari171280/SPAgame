@@ -1340,6 +1340,92 @@
            onchange="handleSavegameFileLoad(event)">
 
     <script>
+        // ================= AUDIO MANAGER =================
+        class AudioManager {
+            constructor() {
+                this.backgroundMusic = null;
+                this.musicFiles = [];
+                this.currentTrackIndex = 0;
+                console.log('🔊 Audio Manager initialized');
+            }
+
+            playBackgroundMusic(files) {
+                if (!files || files.length === 0) {
+                    console.error('No music files provided.');
+                    return;
+                }
+                this.musicFiles = files;
+                this.currentTrackIndex = 0;
+
+                if (!this.backgroundMusic) {
+                    this.backgroundMusic = new Audio();
+                    // loop is handled by ended event to support playlists
+                    this.backgroundMusic.loop = false;
+                    this.backgroundMusic.addEventListener('ended', () => {
+                        this.playNextTrack();
+                    });
+                }
+
+                this.playTrack(this.currentTrackIndex);
+            }
+
+            playTrack(index) {
+                if (index >= this.musicFiles.length) {
+                    console.log('Reached end of playlist, restarting.');
+                    index = 0;
+                }
+                this.currentTrackIndex = index;
+                const track = this.musicFiles[this.currentTrackIndex];
+                this.backgroundMusic.src = track;
+
+                // Apply current volume and mute settings from PlayerData
+                this.setVolume(Player.get('settings.audio_volume'));
+                this.toggleMute(Player.get('settings.is_muted'));
+
+                const playPromise = this.backgroundMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        console.log(`🎵 Playing background music: ${track}`);
+                    }).catch(error => {
+                        console.error(`Failed to play background music: ${error}. User interaction might be required.`);
+                        // If autoplay fails, try to play on the first click.
+                        const playOnClick = () => {
+                            this.backgroundMusic.play().then(() => {
+                                console.log('🎵 Music started after user interaction.');
+                            }).catch(err => {
+                                console.error('Still failed to play after click:', err);
+                            });
+                        };
+                        document.body.addEventListener('click', playOnClick, { once: true });
+                        document.body.addEventListener('touchend', playOnClick, { once: true });
+                    });
+                }
+            }
+
+            playNextTrack() {
+                this.currentTrackIndex++;
+                if (this.currentTrackIndex >= this.musicFiles.length) {
+                    this.currentTrackIndex = 0; // Loop back to the first track
+                }
+                this.playTrack(this.currentTrackIndex);
+            }
+
+            setVolume(volume) { // volume is 0-100
+                if (this.backgroundMusic) {
+                    this.backgroundMusic.volume = volume / 100;
+                }
+            }
+
+            toggleMute(isMuted) {
+                if (this.backgroundMusic) {
+                    this.backgroundMusic.muted = isMuted;
+                }
+            }
+        }
+
+        // Instantiate the Audio Manager
+        const audioManager = new AudioManager();
+
         // ================= SPA NAVIGATION SYSTEM =================
         
         let currentSection = 'main-menu-section';
@@ -2517,6 +2603,12 @@
             
             console.log(`🎵 Volume cambiato da ${oldVolume} a ${value}`);
             
+            // Update Audio Manager
+            audioManager.setVolume(parseInt(value));
+            if (value > 0) {
+                audioManager.toggleMute(false);
+            }
+
             // Aggiorna la barra di progresso del volume PRIMA dell'icona
             updateVolumeSlider();
             updateVolumeIcon();
@@ -2539,6 +2631,9 @@
                 if (slider) slider.value = Player.get('settings.audio_volume');
             }
             
+            // Update Audio Manager
+            audioManager.toggleMute(Player.get('settings.is_muted'));
+
             updateVolumeIcon();
             updateVolumeSlider();
             
@@ -2691,6 +2786,11 @@
             // Inizializza con il main menu
             showSection('main-menu-section');
             console.log('🎮 Gioco inizializzato - Menu principale attivo');
+
+            // Avvia la musica di sottofondo
+            // NOTA: Aggiungi qui altri file .mp3 se necessario
+            const musicFiles = ['audio/placeholder.mp3'];
+            audioManager.playBackgroundMusic(musicFiles);
         });
 
         // Gestione ridimensionamento finestra
