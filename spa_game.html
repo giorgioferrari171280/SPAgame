@@ -2607,12 +2607,27 @@
         
         // Variabile per memorizzare il testo base della location corrente
         let currentLocationBaseText = "Caricamento...";
+
+        // Funzione per generare un numero casuale robusto
+        function getRandomInt(min, max) {
+            // Crea un array di interi a 32-bit senza segno
+            const randomBuffer = new Uint32Array(1);
+            // Riempie l'array con un valore casuale crittograficamente sicuro
+            window.crypto.getRandomValues(randomBuffer);
+            // Normalizza il valore in un float tra 0 (incluso) e 1 (escluso)
+            let randomNumber = randomBuffer[0] / (0xffffffff + 1);
+
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            // Calcola il numero intero nel range desiderato
+            return Math.floor(randomNumber * (max - min + 1)) + min;
+        }
         
         function handleMove() {
             console.log('🎲 Il giocatore si muove...');
 
             // 1. Genera un numero casuale da 1 a 6
-            const roll = Math.floor(Math.random() * 6) + 1;
+            const roll = getRandomInt(1, 6);
 
             // Mostra un modale informativo per il tiro, poi carica la nuova locazione
             showInfoModal("MOVIMENTO", `Hai tirato un ${roll}! Avanzi di ${roll} caselle.`, () => {
