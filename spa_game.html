@@ -2376,31 +2376,45 @@
             }
 
             let progressText = "";
-            if (activeObjective.condition.type === 'stat_check' || activeObjective.condition.type === 'resource_check') {
-                let currentValue;
-                let resource_or_stat_name;
+            // Handle multiple conditions
+            if (activeObjective.conditions && activeObjective.conditions.length > 0) {
+                progressText += "\n\n--- Progressi ---";
 
-                if(activeObjective.condition.type === 'stat_check') {
-                    resource_or_stat_name = activeObjective.condition.stat;
-                    currentValue = objectiveProgress.stats[resource_or_stat_name] || 0;
-                } else { // resource_check
-                    resource_or_stat_name = activeObjective.condition.resource;
-                    currentValue = Player.get(`resources.${resource_or_stat_name}`) || 0;
-                }
+                activeObjective.conditions.forEach(condition => {
+                    let currentValue;
+                    let resource_or_stat_name;
+                    let conditionText;
 
-                const sortedTiers = [...activeObjective.scoringTiers].sort((a, b) => a.target - b.target);
-                let nextTier = sortedTiers.find(tier => currentValue < tier.target && tier.points > 0);
-
-                let progressMessage = `\n\nProgressi: ${currentValue}`;
-                if(nextTier) {
-                    progressMessage += ` / ${nextTier.target} (per il prossimo bonus)`;
-                } else {
-                    const lowestPositiveTier = sortedTiers.find(t => t.points > 0);
-                    if(lowestPositiveTier && currentValue >= lowestPositiveTier.target) {
-                         progressMessage += ` (obiettivo massimo raggiunto!)`;
+                    if (condition.type === 'stat_check') {
+                        resource_or_stat_name = condition.stat;
+                        conditionText = `Statistica (${resource_or_stat_name})`;
+                        currentValue = objectiveProgress.stats[resource_or_stat_name] || 0;
+                    } else { // resource_check
+                        resource_or_stat_name = condition.resource;
+                        conditionText = `Risorsa (${resource_or_stat_name})`;
+                        currentValue = Player.get(`resources.${resource_or_stat_name}`) || 0;
                     }
-                }
-                progressText = progressMessage;
+
+                    // Find the next tier for this specific condition
+                    // This is tricky because tiers can depend on multiple conditions.
+                    // Let's sort tiers based on the value for the current condition.
+                    const sortedTiers = [...activeObjective.scoringTiers]
+                        .filter(t => t.target[resource_or_stat_name] !== undefined) // only tiers relevant to this condition
+                        .sort((a, b) => a.target[resource_or_stat_name] - b.target[resource_or_stat_name]);
+
+                    let nextTier = sortedTiers.find(tier => currentValue < tier.target[resource_or_stat_name] && tier.points > 0);
+
+                    progressText += `\n${conditionText}: ${currentValue}`;
+                    if (nextTier) {
+                        progressText += ` / ${nextTier.target[resource_or_stat_name]} (per il prossimo bonus)`;
+                    } else {
+                         // Check if max tier for this condition is reached
+                        const maxTier = sortedTiers.length > 0 ? sortedTiers[sortedTiers.length - 1] : null;
+                        if (maxTier && currentValue >= maxTier.target[resource_or_stat_name]) {
+                             progressText += ` (obiettivo massimo raggiunto!)`;
+                        }
+                    }
+                });
             }
 
             const message = activeObjective.description.replace(/<[^>]*>/g, "") + progressText;
