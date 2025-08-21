@@ -365,7 +365,6 @@
 
         .hall-of-fame-list li {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             padding: 10px 15px;
             background: rgba(255, 255, 255, 0.05);
@@ -380,15 +379,35 @@
         }
 
         .hall-of-fame-list li span:nth-child(2) {
-            flex-basis: 60%;
+            flex: 1; /* Make name flexible */
             text-align: left;
+            padding: 0 1.5em; /* Add horizontal space */
         }
 
         .hall-of-fame-list li span:nth-child(3) {
             font-weight: bold;
             color: #f39c12;
-            flex-basis: 30%;
             text-align: right;
+        }
+
+        /* Stili per personalizzare la barra di scorrimento nella Hall of Fame */
+        .hall-of-fame-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        .hall-of-fame-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .hall-of-fame-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        .hall-of-fame-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        #hall-of-fame-section .footer-section {
+            justify-content: space-between;
         }
 
         /* Stile hover per il pulsante di uscita */
