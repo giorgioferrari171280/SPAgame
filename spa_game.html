@@ -338,6 +338,59 @@
             background: linear-gradient(135deg, #e74c3c, #c0392b);
         }
 
+        /* ================= STILI HALL OF FAME ================= */
+        .hall-of-fame-box {
+            width: 50%;
+            height: 80%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hall-of-fame-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hall-of-fame-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            font-size: 2.5vh;
+        }
+
+        .hall-of-fame-list li span:nth-child(1) {
+            font-weight: bold;
+            color: #f39c12;
+            flex-basis: 10%;
+        }
+
+        .hall-of-fame-list li span:nth-child(2) {
+            flex-basis: 60%;
+            text-align: left;
+        }
+
+        .hall-of-fame-list li span:nth-child(3) {
+            font-weight: bold;
+            color: #f39c12;
+            flex-basis: 30%;
+            text-align: right;
+        }
+
         /* Stile hover per il pulsante di uscita */
         .menu-button.exit:hover {
             /* Il gradiente diventa leggermente più chiaro al passaggio del mouse */
@@ -1498,9 +1551,9 @@
                         <div class="main-menu">
                             <!-- Ogni pulsante chiama una funzione JavaScript diversa quando cliccato (onclick). -->
                             <button class="menu-button" onclick="startNewGame()">Nuova Partita</button>
-                            <button class="menu-button" onclick="loadGame()">Carica Partita</button>
+                            <button class="menu-button" onclick="loadGame()">Continua Partita</button>
                             <button class="menu-button" onclick="showImportSavegame()">Import Savegame</button>
-                            <button class="menu-button" onclick="showOptions()">Opzioni</button>
+                            <button class="menu-button" onclick="showHallOfFame()">Hall of Fame</button>
                             <button class="menu-button" onclick="showCredits()">Crediti</button>
                             <button class="menu-button" onclick="showTutorial()">Tutorial</button>
                             <!-- Questo pulsante ha una classe extra 'exit' per dargli uno stile diverso (rosso). -->
@@ -1511,6 +1564,74 @@
                 
                 <!-- Footer della sezione (attualmente vuoto). -->
                 <footer class="footer-section">
+                    <div class="footer-left"></div>
+                    <div class="footer-center"></div>
+                    <div class="footer-right">
+                        <!-- Controllo del volume. -->
+                        <div class="volume-control">
+                            <span class="volume-icon" onclick="toggleMute()">🔊</span>
+                            <input type="range"
+                                   id="volume-slider-main"
+                                   class="volume-slider"
+                                   min="0"
+                                   max="100"
+                                   value="75"
+                                   oninput="changeVolume(this.value)">
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <!-- ================= SEZIONE HALL OF FAME ================= -->
+        <div id="hall-of-fame-section" class="spa-section">
+            <div class="layout-container">
+                <header class="header-section">
+                    <h1 data-text="HALL OF FAME">HALL OF FAME</h1>
+                </header>
+                <main class="main-section" style="justify-content: center;">
+                    <div class="hall-of-fame-box">
+                        <ol class="hall-of-fame-list">
+                            <li><span>1.</span><span>Alessandro "Il Grande"</span><span>1,250,000</span></li>
+                            <li><span>2.</span><span>Beatrice "La Saggia"</span><span>1,180,000</span></li>
+                            <li><span>3.</span><span>Carlo "Il Conquistatore"</span><span>1,150,000</span></li>
+                            <li><span>4.</span><span>Diana "La Cacciatrice"</span><span>1,100,000</span></li>
+                            <li><span>5.</span><span>Edoardo "Il Costruttore"</span><span>1,050,000</span></li>
+                            <li><span>6.</span><span>Francesca "La Mercante"</span><span>980,000</span></li>
+                            <li><span>7.</span><span>Giovanni "Il Navigatore"</span><span>950,000</span></li>
+                            <li><span>8.</span><span>Isabella "La Regina"</span><span>920,000</span></li>
+                            <li><span>9.</span><span>Leonardo "L'Inventore"</span><span>890,000</span></li>
+                            <li><span>10.</span><span>Marco "Il Viaggiatore"</span><span>850,000</span></li>
+                            <li><span>11.</span><span>Nicoletta "La Tessitrice"</span><span>820,000</span></li>
+                            <li><span>12.</span><span>Orlando "Il Paladino"</span><span>790,000</span></li>
+                            <li><span>13.</span><span>Paola "La Guaritrice"</span><span>760,000</span></li>
+                            <li><span>14.</span><span>Riccardo "Cuor di Leone"</span><span>730,000</span></li>
+                            <li><span>15.</span><span>Sofia "La Studiosa"</span><span>700,000</span></li>
+                            <li><span>16.</span><span>Tommaso "Il Contadino"</span><span>670,000</span></li>
+                            <li><span>17.</span><span>Valentina "La Diplomatica"</span><span>640,000</span></li>
+                            <li><span>18.</span><span>Zaccaria "Il Minatore"</span><span>610,000</span></li>
+                            <li><span>19.</span><span>Laura "La Poetessa"</span><span>580,000</span></li>
+                            <li><span>20.</span><span>Vittorio "Il Vincitore"</span><span>550,000</span></li>
+                        </ol>
+                    </div>
+                </main>
+                <footer class="footer-section">
+                     <div class="footer-left">
+                        <button class="back-button" onclick="showSection('main-menu-section')">← BACK TO MAIN MENU</button>
+                    </div>
+                    <div class="footer-center"></div>
+                    <div class="footer-right">
+                        <div class="volume-control">
+                            <span class="volume-icon" onclick="toggleMute()">🔊</span>
+                            <input type="range"
+                                   id="volume-slider-hof"
+                                   class="volume-slider"
+                                   min="0"
+                                   max="100"
+                                   value="75"
+                                   oninput="changeVolume(this.value)">
+                        </div>
+                    </div>
                 </footer>
             </div>
         </div>
@@ -2359,6 +2480,11 @@
         /**
          * Mostra un modale informativo per le opzioni (funzione non ancora implementata).
          */
+        function showHallOfFame() {
+            console.log('🏆 Mostrando Hall of Fame...');
+            showSection('hall-of-fame-section');
+        }
+
         function showOptions() {
             console.log('⚙️ Aprendo opzioni...');
             showInfoModal(
@@ -3527,36 +3653,40 @@
          * Colora la traccia dello slider in base al valore corrente e imposta la posizione del pollice.
          */
         function updateVolumeSlider() {
-            const slider = document.getElementById('volume-slider');
-            if (slider) {
-                // Se l'audio è muto, la barra deve apparire vuota (volume 0).
-                const displayVolume = Player.get('settings.is_muted') ? 0 : Player.get('settings.audio_volume');
-                const percentage = displayVolume;
-                
-                // Imposta una variabile CSS '--volume-percent' che viene usata nel CSS per colorare la traccia.
-                slider.style.setProperty('--volume-percent', `${percentage}%`);
-                
-                // Aggiorna il valore effettivo dello slider, che muove il pollice.
-                slider.value = displayVolume;
-            }
+            const sliders = document.querySelectorAll('.volume-slider');
+            sliders.forEach(slider => {
+                if (slider) {
+                    // Se l'audio è muto, la barra deve apparire vuota (volume 0).
+                    const displayVolume = Player.get('settings.is_muted') ? 0 : Player.get('settings.audio_volume');
+                    const percentage = displayVolume;
+
+                    // Imposta una variabile CSS '--volume-percent' che viene usata nel CSS per colorare la traccia.
+                    slider.style.setProperty('--volume-percent', `${percentage}%`);
+
+                    // Aggiorna il valore effettivo dello slider, che muove il pollice.
+                    slider.value = displayVolume;
+                }
+            });
         }
 
         /**
          * Aggiorna l'icona del volume (emoji) in base al livello del volume e allo stato mute.
          */
         function updateVolumeIcon() {
-            const volumeIcon = document.querySelector('.volume-icon');
-            if (volumeIcon) {
-                if (Player.get('settings.is_muted') || Player.get('settings.audio_volume') == 0) {
-                    volumeIcon.textContent = '🔇'; // Icona per muto o volume zero.
-                } else if (Player.get('settings.audio_volume') < 30) {
-                    volumeIcon.textContent = '🔈'; // Volume basso.
-                } else if (Player.get('settings.audio_volume') < 70) {
-                    volumeIcon.textContent = '🔉'; // Volume medio.
-                } else {
-                    volumeIcon.textContent = '🔊'; // Volume alto.
+            const volumeIcons = document.querySelectorAll('.volume-icon');
+            volumeIcons.forEach(volumeIcon => {
+                if (volumeIcon) {
+                    if (Player.get('settings.is_muted') || Player.get('settings.audio_volume') == 0) {
+                        volumeIcon.textContent = '🔇'; // Icona per muto o volume zero.
+                    } else if (Player.get('settings.audio_volume') < 30) {
+                        volumeIcon.textContent = '🔈'; // Volume basso.
+                    } else if (Player.get('settings.audio_volume') < 70) {
+                        volumeIcon.textContent = '🔉'; // Volume medio.
+                    } else {
+                        volumeIcon.textContent = '🔊'; // Volume alto.
+                    }
                 }
-            }
+            });
         }
 
         /**
