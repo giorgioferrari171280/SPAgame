@@ -2840,7 +2840,7 @@
                     
                     // === IMPOSTAZIONI UTENTE ===
                     settings: {
-                        audio_volume: 0,
+                        audio_volume: 50,
                         is_muted: false,
                         autoSave: true,
                     },
@@ -4115,6 +4115,10 @@
             // Inizializza con il main menu
             showSection('main-menu-section');
             console.log('🎮 Gioco inizializzato - Menu principale attivo');
+
+            // Inizializza l'UI del volume per sincronizzare lo stato visivo con i dati caricati
+            updateVolumeSlider();
+            updateVolumeIcon();
 
             // Avvia la musica di sottofondo
             // NOTA: Aggiungi qui altri file .mp3 se necessario
