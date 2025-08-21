@@ -2686,14 +2686,10 @@
             moveButton.id = 'btn_move';
             moveButton.className = 'action-button'; // Stile unificato
             moveButton.textContent = 'MUOVITI';
-            moveButton.disabled = true; // Disabilitato di default
+            moveButton.disabled = false; // Abilitato di default
             moveButton.addEventListener('click', handleMove);
             moveButton.addEventListener('mouseenter', () => {
-                if (moveButton.disabled) {
-                    changeNarrativeText('custom', "Devi prima completare un'azione in questa locazione per poterti muovere.");
-                } else {
-                    changeNarrativeText('custom', "Avanza sul tabellone di 1-6 caselle verso una nuova avventura!");
-                }
+                changeNarrativeText('custom', "Avanza sul tabellone di 1-6 caselle verso una nuova avventura!");
             });
             moveButton.addEventListener('mouseleave', () => {
                 changeNarrativeText('base');
