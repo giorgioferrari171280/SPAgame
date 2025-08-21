@@ -871,12 +871,14 @@
             margin-top: 2%;
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 3%;
-            padding: 3%;
+            border-radius: 12px;
+            padding: 15px;
             backdrop-filter: blur(5px);
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
         }
 
         .stats-item {
@@ -900,6 +902,36 @@
             font-size: 2.5vh;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .stats-column {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex-grow: 1; /* Allow stats to take up available space */
+        }
+
+        .goals-button {
+            padding: 12px 25px;
+            font-size: 2.2vh;
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            border: 1px solid #f5cba7;
+            color: #ffffff;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            letter-spacing: 1px;
+            flex-shrink: 0; /* Prevent button from shrinking */
+        }
+
+        .goals-button:hover {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }
 
         /* Colonna destra della UI di gioco (contiene risorse, pulsanti e testo). */
@@ -1698,14 +1730,17 @@
                             <div class="image-placeholder">Immagine della cutscene qui</div>
                         </div>
                         <div class="stats-box-game">
-                            <div class="stats-item">
-                                <span class="stats-label">Anni Passati</span>
-                                <span class="stats-value" id="years-passed-value">0</span>
+                            <div class="stats-column">
+                                <div class="stats-item">
+                                    <span class="stats-label">Anni Passati</span>
+                                    <span class="stats-value" id="years-passed-value">0</span>
+                                </div>
+                                <div class="stats-item">
+                                    <span class="stats-label">Punteggio</span>
+                                    <span class="stats-value" id="score-value">0</span>
+                                </div>
                             </div>
-                            <div class="stats-item">
-                                <span class="stats-label">Punteggio</span>
-                                <span class="stats-value" id="score-value">0</span>
-                            </div>
+                            <button class="goals-button" onclick="showGoalsModal()">OBIETTIVI</button>
                         </div>
                     </div>
 
@@ -2305,6 +2340,60 @@
                     });
                 }
             }, 300);
+        }
+
+        function showGoalsModal() {
+            const objectiveProgress = Player.get('gameData.objectiveProgress');
+            const activeObjectiveId = objectiveProgress.currentObjectiveId;
+
+            if (!activeObjectiveId) {
+                showInfoModal("Nessun Obiettivo", "Non hai un obiettivo attivo per quest'anno.", null, 'info');
+                return;
+            }
+
+            const activeObjective = objectiveDeck.find(obj => obj.id === activeObjectiveId);
+            if (!activeObjective) {
+                showInfoModal("Errore Obiettivo", "Impossibile trovare i dettagli per l'obiettivo corrente.", null, 'info');
+                return;
+            }
+
+            let progressText = "";
+            if (activeObjective.condition.type === 'stat_check' || activeObjective.condition.type === 'resource_check') {
+                let currentValue;
+                let resource_or_stat_name;
+
+                if(activeObjective.condition.type === 'stat_check') {
+                    resource_or_stat_name = activeObjective.condition.stat;
+                    currentValue = objectiveProgress.stats[resource_or_stat_name] || 0;
+                } else { // resource_check
+                    resource_or_stat_name = activeObjective.condition.resource;
+                    currentValue = Player.get(`resources.${resource_or_stat_name}`) || 0;
+                }
+
+                const sortedTiers = [...activeObjective.scoringTiers].sort((a, b) => a.target - b.target);
+                let nextTier = sortedTiers.find(tier => currentValue < tier.target && tier.points > 0);
+
+                let progressMessage = `\n\nProgressi: ${currentValue}`;
+                if(nextTier) {
+                    progressMessage += ` / ${nextTier.target} (per il prossimo bonus)`;
+                } else {
+                    const lowestPositiveTier = sortedTiers.find(t => t.points > 0);
+                    if(lowestPositiveTier && currentValue >= lowestPositiveTier.target) {
+                         progressMessage += ` (obiettivo massimo raggiunto!)`;
+                    }
+                }
+                progressText = progressMessage;
+            }
+
+            const message = activeObjective.description.replace(/<[^>]*>/g, "") + progressText;
+
+            showInfoModal(
+                "Obiettivo Annuale",
+                message,
+                null,
+                'info',
+                activeObjective.outcomes['gold'].image
+            );
         }
 
         /**
@@ -3720,19 +3809,6 @@
             setupGameUIFooterEventListeners();
             
             console.log('✅ Game UI inizializzato con location:', currentGameLocationId);
-
-            // Mostra l'obiettivo dell'anno corrente nel pannello narrativo
-            const objectiveProgress = Player.get('gameData.objectiveProgress');
-            if (objectiveProgress && objectiveProgress.currentObjectiveId) {
-                const activeObjective = objectiveDeck.find(obj => obj.id === objectiveProgress.currentObjectiveId);
-                if (activeObjective) {
-                    const narrativeContent = document.getElementById('game-narrative-content');
-                    if (narrativeContent) {
-                        // Aggiunge una linea e poi la descrizione dell'obiettivo.
-                        narrativeContent.innerHTML += `<hr style="margin: 10px 0;"><p>${activeObjective.description}</p>`;
-                    }
-                }
-            }
         }
 
         /**
