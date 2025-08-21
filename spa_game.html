@@ -870,8 +870,8 @@
             display: grid;
             /* 4 colonne di larghezza uguale */
             grid-template-columns: repeat(4, 1fr);
-            /* 3 righe di altezza uguale */
-            grid-template-rows: repeat(3, 1fr);
+            /* 4 righe di altezza uguale per un totale di 16 box */
+            grid-template-rows: repeat(4, 1fr);
             /* Spazio tra le celle della griglia */
             gap: 2%;
         }
@@ -1707,6 +1707,44 @@
                                     <div class="resource-value" id="cows-value">0</div>
                                 </div>
                             </div>
+
+                            <!-- Riga 4 (Nuove Risorse) -->
+                            <div class="resource-item">
+                                <div class="resource-icon" id="cloth-icon">
+                                    <img src="img/cloth.png" alt="Tessuti" onerror="resourceImageError(this, '👕')">
+                                </div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Tessuti</div>
+                                    <div class="resource-value" id="cloth-value">0</div>
+                                </div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-icon" id="tools-icon">
+                                    <img src="img/tools.png" alt="Attrezzi" onerror="resourceImageError(this, '🛠️')">
+                                </div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Attrezzi</div>
+                                    <div class="resource-value" id="tools-value">0</div>
+                                </div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-icon" id="stone-icon">
+                                    <img src="img/stone.png" alt="Pietra" onerror="resourceImageError(this, '🪨')">
+                                </div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Pietra</div>
+                                    <div class="resource-value" id="stone-value">0</div>
+                                </div>
+                            </div>
+                            <div class="resource-item">
+                                <div class="resource-icon" id="pottery-icon">
+                                    <img src="img/pottery.png" alt="Ceramiche" onerror="resourceImageError(this, '🏺')">
+                                </div>
+                                <div class="resource-info">
+                                    <div class="resource-label">Ceramiche</div>
+                                    <div class="resource-value" id="pottery-value">0</div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Contenitore inferiore che raggruppa i pulsanti di azione e il pannello narrativo. -->
@@ -2488,7 +2526,7 @@
                     
                     // === RISORSE DEL GIOCATORE ===
                     resources: {
-                        shillings: 100,
+                        shillings: 0,
                         workers: 2,
                         wool: 0,
                         whisky: 0,
@@ -2499,7 +2537,11 @@
                         lumber: 0,
                         oats: 0,
                         grain: 50,
-                        cows: 2
+                        cows: 2,
+                        cloth: 0,
+                        tools: 0,
+                        stone: 0,
+                        pottery: 0
                     },
                     
                     // === INVENTARIO ===
@@ -3428,6 +3470,10 @@
             const oatsElement = document.getElementById('oats-value');
             const grainElement = document.getElementById('grain-value');
             const cowsElement = document.getElementById('cows-value');
+            const clothElement = document.getElementById('cloth-value');
+            const toolsElement = document.getElementById('tools-value');
+            const stoneElement = document.getElementById('stone-value');
+            const potteryElement = document.getElementById('pottery-value');
 
             // Aggiorna il testo di ogni elemento, se esiste.
             // Usa '|| 0' come fallback se il valore non è definito.
@@ -3444,6 +3490,10 @@
             if (oatsElement) oatsElement.textContent = (Player.get('resources.oats') || 0).toLocaleString();
             if (grainElement) grainElement.textContent = (Player.get('resources.grain') || 0).toLocaleString();
             if (cowsElement) cowsElement.textContent = (Player.get('resources.cows') || 0).toLocaleString();
+            if (clothElement) clothElement.textContent = (Player.get('resources.cloth') || 0).toLocaleString();
+            if (toolsElement) toolsElement.textContent = (Player.get('resources.tools') || 0).toLocaleString();
+            if (stoneElement) stoneElement.textContent = (Player.get('resources.stone') || 0).toLocaleString();
+            if (potteryElement) potteryElement.textContent = (Player.get('resources.pottery') || 0).toLocaleString();
         }
 
         /**
