@@ -2462,7 +2462,7 @@
                 buttons: [
                     { id: "wool_shear", text: "Tosa le Pecore", class: "action-button", hoverText: "Usa un lavoratore per tosare le pecore. (+20 Lana)", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "wool", amount: 20 }, { type: "showMessage", title: "Lana Raccolta", message: "Hai prodotto 20 unità di lana." }] },
                     { id: "wool_sell", text: "Vendi Lana", class: "action-button success", hoverText: "Vendi 20 lana per 30 scellini.", actions: [{ type: "removeResource", resource: "wool", amount: 20 }, { type: "addResource", resource: "shillings", amount: 30 }, { type: "showMessage", title: "Lana Venduta", message: "Hai venduto la lana per 30 scellini." }] },
-                    { id: "wool_event", text: "Fuga di Pecore", class: "action-button danger", hoverText: "Alcune pecore sono scappate dal recinto.", actions: [{ type: "showMessage", title: "Pecore in Fuga!", message: "Perdi tempo a recuperarle." }] }
+                    { id: "wool_event", text: "Fuga di Pecore", class: "action-button danger", hoverText: "Alcune pecore sono scappate dal recinto.", actions: [{ type: "showMessage", title: "Pecore in Fuga!", message: "Perdi tempo a recuperarle.", imageUrl: "img/fuga_pecore.jpg" }] }
                 ]
             },
             "location_8": {
@@ -2590,7 +2590,8 @@
                         showMessageAction.title,
                         showMessageAction.message,
                         newCallback, // Usa la nuova callback
-                        'success'
+                        'info', // Using 'info' type for now, can be customized later
+                        showMessageAction.imageUrl || null
                     );
                 } else {
                     // Se non c'è modale, aggiorna subito i pulsanti
