@@ -782,7 +782,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
         }
 
         /* Contenitore dell'immagine nella UI di gioco. */
@@ -810,6 +810,43 @@
             object-fit: cover;
             object-position: center;
             border-radius: 3%;
+        }
+
+        /* Box delle statistiche sotto l'immagine di gioco */
+        .stats-box-game {
+            width: 90%;
+            margin-top: 2%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3%;
+            padding: 3%;
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .stats-label {
+            color: #ffffff;
+            font-size: 1.8vh;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .stats-value {
+            color: #f39c12;
+            font-size: 2.5vh;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
 
         /* Colonna destra della UI di gioco (contiene risorse, pulsanti e testo). */
@@ -1538,6 +1575,16 @@
                     <div class="left-column-game">
                         <div class="image-container-game">
                             <div class="image-placeholder">Immagine della cutscene qui</div>
+                        </div>
+                        <div class="stats-box-game">
+                            <div class="stats-item">
+                                <span class="stats-label">Anni Passati</span>
+                                <span class="stats-value" id="years-passed-value">0</span>
+                            </div>
+                            <div class="stats-item">
+                                <span class="stats-label">Punteggio</span>
+                                <span class="stats-value" id="score-value">0</span>
+                            </div>
                         </div>
                     </div>
 
@@ -3128,6 +3175,7 @@
                 
                 // Aggiorna la visualizzazione delle risorse nell'UI.
                 updateResourcesDisplay();
+                updateStatsBox();
                 
                 // Fase 3: Se c'era un'azione 'showMessage', la esegue ora.
                 if (showMessageAction) {
@@ -3304,6 +3352,7 @@
             
             // Aggiorna la visualizzazione di tutte le risorse del giocatore.
             updateResourcesDisplay();
+            updateStatsBox();
             
             // Imposta lo stato iniziale del controllo del volume in base ai dati salvati.
             const slider = document.getElementById('volume-slider');
@@ -3395,6 +3444,23 @@
             if (oatsElement) oatsElement.textContent = (Player.get('resources.oats') || 0).toLocaleString();
             if (grainElement) grainElement.textContent = (Player.get('resources.grain') || 0).toLocaleString();
             if (cowsElement) cowsElement.textContent = (Player.get('resources.cows') || 0).toLocaleString();
+        }
+
+        /**
+         * Aggiorna il box delle statistiche (anni passati e punteggio).
+         */
+        function updateStatsBox() {
+            const yearsPassedElement = document.getElementById('years-passed-value');
+            const scoreElement = document.getElementById('score-value');
+
+            if (yearsPassedElement) {
+                // L'anno di gioco inizia da 1, quindi gli anni passati sono currentYear - 1.
+                yearsPassedElement.textContent = (Player.get('gameData.currentYear') || 1) - 1;
+            }
+            if (scoreElement) {
+                // Usa gli scellini come punteggio.
+                scoreElement.textContent = (Player.get('resources.shillings') || 0).toLocaleString();
+            }
         }
 
         /**
