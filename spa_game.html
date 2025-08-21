@@ -1612,13 +1612,9 @@
             console.log('🔧 Callback annulla:', typeof onCancel, onCancel);
             
             // Gestione immagine
-            if (imageUrl) {
-                imageContainer.innerHTML = `<img src="${imageUrl}" alt="Modal Image">`;
-                imageContainer.style.display = 'block';
-            } else {
-                imageContainer.innerHTML = '';
-                imageContainer.style.display = 'none';
-            }
+            const finalImageUrl = imageUrl || 'https://via.placeholder.com/150/808080/FFFFFF?Text=IMG';
+            imageContainer.innerHTML = `<img src="${finalImageUrl}" alt="Modal Image">`;
+            imageContainer.style.display = 'block';
 
             // Imposta contenuto
             titleElement.textContent = title;
@@ -1668,13 +1664,9 @@
             console.log('ℹ️ Mostrando modale informativo:', title);
             
             // Gestione immagine
-            if (imageUrl) {
-                imageContainer.innerHTML = `<img src="${imageUrl}" alt="Modal Image">`;
-                imageContainer.style.display = 'block';
-            } else {
-                imageContainer.innerHTML = '';
-                imageContainer.style.display = 'none';
-            }
+            const finalImageUrl = imageUrl || 'https://via.placeholder.com/150/808080/FFFFFF?Text=IMG';
+            imageContainer.innerHTML = `<img src="${finalImageUrl}" alt="Modal Image">`;
+            imageContainer.style.display = 'block';
 
             // Imposta contenuto
             titleElement.textContent = title;
@@ -1716,13 +1708,9 @@
             console.log('📝 Mostrando modale con input:', title);
 
             // Gestione immagine
-            if (imageUrl) {
-                imageContainer.innerHTML = `<img src="${imageUrl}" alt="Modal Image">`;
-                imageContainer.style.display = 'block';
-            } else {
-                imageContainer.innerHTML = '';
-                imageContainer.style.display = 'none';
-            }
+            const finalImageUrl = imageUrl || 'https://via.placeholder.com/150/808080/FFFFFF?Text=IMG';
+            imageContainer.innerHTML = `<img src="${finalImageUrl}" alt="Modal Image">`;
+            imageContainer.style.display = 'block';
 
             // Imposta contenuto
             titleElement.textContent = title;
