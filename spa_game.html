@@ -309,7 +309,7 @@
             /* Ombra esterna per dare un effetto di profondità al pulsante */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             /* Angoli arrotondati */
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
         /* Stile del pulsante quando il mouse ci passa sopra (hover) */
@@ -565,7 +565,7 @@
             justify-content: center;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
+            border-radius: 6px;
             /* Aumenta la spaziatura tra le lettere per un look più "cinematografico" */
             letter-spacing: 2px;
         }
@@ -673,7 +673,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             padding: 1vh 2vh; /* Padding relativo alla viewport height */
-            border-radius: 5px;
+            border-radius: 4px;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             letter-spacing: 0.5px;
@@ -923,7 +923,7 @@
             transition: all 0.3s ease;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
+            border-radius: 6px;
             letter-spacing: 1px;
             flex-shrink: 0; /* Prevent button from shrinking */
         }
@@ -1074,7 +1074,7 @@
             justify-content: center;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            border-radius: 5%;
+            border-radius: 6px;
             letter-spacing: 1px;
         }
 
@@ -1325,7 +1325,7 @@
         .modal-button {
             padding: 15px 30px;
             border: 2px solid transparent; /* Bordo trasparente per non spostare il layout al cambio di colore */
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 2.2vh;
             font-weight: bold;
             text-transform: uppercase;
@@ -3308,15 +3308,15 @@
             {
                 id: "sell_fish",
                 description: "<strong>Obiettivo Annuale:</strong> Le maree di questo inverno hanno portato le aringhe lontano dalla costa e i mercati del pesce sono vuoti. Vendi più pesce che puoi per ottenere un grande bonus al tuo punteggio.",
-                condition: {
+                conditions: [{
                     type: 'stat_check',
                     stat: 'fish_sold_this_year'
-                },
+                }],
                 scoringTiers: [
-                    { target: 301, points: 500, outcomeId: 'gold' },
-                    { target: 101, points: 200, outcomeId: 'silver' },
-                    { target: 50,  points: 150, outcomeId: 'bronze' },
-                    { target: 0,   points: 0,   outcomeId: 'failure' }
+                    { target: { fish_sold_this_year: 301 }, points: 500, outcomeId: 'gold' },
+                    { target: { fish_sold_this_year: 101 }, points: 200, outcomeId: 'silver' },
+                    { target: { fish_sold_this_year: 50 },  points: 150, outcomeId: 'bronze' },
+                    { target: { fish_sold_this_year: 0 },   points: 0,   outcomeId: 'failure' }
                 ],
                 outcomes: {
                     'gold': {
@@ -3344,14 +3344,14 @@
             {
                 id: "maintain_meat",
                 description: "<strong>Obiettivo Annuale:</strong> L'inverno si preannuncia rigido. Accumula più carne possibile per assicurare il benessere della tua gente e aumentare la tua fama.",
-                condition: {
+                conditions: [{
                     type: 'resource_check',
                     resource: 'meat'
-                },
+                }],
                 scoringTiers: [
-                    { target: 100, points: 300, outcomeId: 'gold' },
-                    { target: 50,  points: 150, outcomeId: 'silver' },
-                    { target: 0,   points: 0,   outcomeId: 'failure' }
+                    { target: { meat: 100 }, points: 300, outcomeId: 'gold' },
+                    { target: { meat: 50 },  points: 150, outcomeId: 'silver' },
+                    { target: { meat: 0 },   points: 0,   outcomeId: 'failure' }
                 ],
                 outcomes: {
                     'gold': {
@@ -3368,6 +3368,42 @@
                         title: "Razioni Limitate",
                         narrative: "Le tue scorte di carne sono pericolosamente basse. L'inverno sarà duro e il malcontento serpeggia. Hai guadagnato 0 punti.",
                         image: "img/meat_failure.png"
+                    }
+                }
+            },
+            {
+                id: "sell_fish_and_keep_grain",
+                description: "<strong>Obiettivo Annuale:</strong> I mercanti richiedono pesce fresco, ma la gente ha bisogno di pane. Vendi pesce per profitto, ma assicurati di avere abbastanza grano nelle riserve.",
+                conditions: [
+                    {
+                        type: 'stat_check',
+                        stat: 'fish_sold_this_year'
+                    },
+                    {
+                        type: 'resource_check',
+                        resource: 'grain'
+                    }
+                ],
+                scoringTiers: [
+                    { target: { fish_sold_this_year: 60, grain: 100 }, points: 400, outcomeId: 'gold' },
+                    { target: { fish_sold_this_year: 30, grain: 50 }, points: 200, outcomeId: 'silver' },
+                    { target: { fish_sold_this_year: 0, grain: 0 }, points: 0, outcomeId: 'failure' }
+                ],
+                outcomes: {
+                    'gold': {
+                        title: "Maestro del Commercio",
+                        narrative: "Un capolavoro di gestione! Hai massimizzato i profitti senza sacrificare il benessere del popolo. Ottieni 400 punti.",
+                        image: "img/gold_trade.png"
+                    },
+                    'silver': {
+                        title: "Abile Mercante",
+                        narrative: "Hai raggiunto un ottimo equilibrio tra vendita e gestione delle scorte. Ottieni 200 punti.",
+                        image: "img/silver_trade.png"
+                    },
+                    'failure': {
+                        title: "Gestione Difficile",
+                        narrative: "Non sei riuscito a bilanciare le due richieste. Nessun punto bonus quest'anno.",
+                        image: "img/failure_trade.png"
                     }
                 }
             }
@@ -3397,19 +3433,48 @@
             let resultCutscene = null;
 
             // 1. Valuta l'obiettivo per l'anno appena concluso
-            if (activeObjective) {
-                let performanceValue = 0;
-                if (activeObjective.condition.type === 'stat_check') {
-                    performanceValue = objectiveProgress.stats[activeObjective.condition.stat] || 0;
-                } else if (activeObjective.condition.type === 'resource_check') {
-                    performanceValue = Player.get(`resources.${activeObjective.condition.resource}`) || 0;
+            if (activeObjective && activeObjective.conditions) {
+                // Ordina i livelli di punteggio dal più alto al più basso in base ai punti.
+                const sortedTiers = [...activeObjective.scoringTiers].sort((a, b) => b.points - a.points);
+                let achievedTier = null;
+
+                // Itera attraverso i livelli ordinati per trovare il primo che il giocatore ha raggiunto.
+                for (const tier of sortedTiers) {
+                    let allConditionsMet = true; // Flag per verificare se tutte le condizioni per questo livello sono soddisfatte.
+
+                    // Itera attraverso tutte le condizioni dell'obiettivo.
+                    for (const condition of activeObjective.conditions) {
+                        let performanceValue = 0;
+                        let targetKey = null;
+
+                        // Ottiene il valore della performance del giocatore in base al tipo di condizione.
+                        if (condition.type === 'stat_check') {
+                            targetKey = condition.stat;
+                            performanceValue = objectiveProgress.stats[targetKey] || 0;
+                        } else if (condition.type === 'resource_check') {
+                            targetKey = condition.resource;
+                            performanceValue = Player.get(`resources.${targetKey}`) || 0;
+                        }
+
+                        // Controlla se il valore del giocatore è inferiore al target per questa specifica condizione.
+                        // tier.target è ora un oggetto, es: { fish_sold_this_year: 60, grain: 100 }
+                        if (performanceValue < tier.target[targetKey]) {
+                            allConditionsMet = false; // Se anche una condizione non è soddisfatta...
+                            break; // ...interrompe il controllo per questo livello e passa al successivo.
+                        }
+                    }
+
+                    // Se tutte le condizioni per questo livello sono state soddisfatte, lo memorizza e interrompe il ciclo.
+                    if (allConditionsMet) {
+                        achievedTier = tier;
+                        break;
+                    }
                 }
 
-                const sortedTiers = [...activeObjective.scoringTiers].sort((a, b) => b.target - a.target);
-                let achievedTier = sortedTiers.find(tier => performanceValue >= tier.target);
-
+                // Se nessun livello è stato raggiunto, imposta il risultato di fallimento.
                 if (!achievedTier) {
-                    achievedTier = { points: 0, outcomeId: 'failure' };
+                    // Cerca esplicitamente il tier di fallimento o ne crea uno di default
+                    achievedTier = sortedTiers.find(t => t.points === 0) || { points: 0, outcomeId: 'failure' };
                 }
 
                 earnedPoints = achievedTier.points;
