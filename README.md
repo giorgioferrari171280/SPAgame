@@ -215,3 +215,140 @@ Questo tipo di obiettivo richiede di soddisfare **due o più condizioni contempo
 **Importante:** Per questo tipo di obiettivo, la proprietà `target` in `scoringTiers` non è più un numero, ma un **oggetto**. Le chiavi di questo oggetto devono corrispondere alla risorsa (`resource`) o statistica (`stat`) definita nelle `conditions`.
 
 Assicurati sempre di aver configurato anche l'azione `trackSale` per la parte di vendita dell'obiettivo!
+
+---
+
+## Guida Rapida ai Punti Chiave del Codice
+
+Per aiutarti a trovare rapidamente le sezioni da modificare nel file `spa_game.html`, ecco una guida con i riferimenti e i numeri di riga approssimativi.
+
+*Nota: i numeri di riga potrebbero variare leggermente se il file viene modificato.*
+
+### 1. Aggiungere Nuove Location (Caselle)
+
+Per aggiungere una nuova location, devi modificare due punti:
+
+1.  **`gameBoard` (attorno alla riga 3161):** Aggiungi l'ID univoco della tua nuova location a questo array per definire la sua posizione nel tabellone di gioco.
+    ```javascript
+    // Cerca questo codice:
+    const gameBoard = [
+        'location_1', 'location_2', /* ... */ 'tuo_nuovo_id'
+    ];
+    ```
+
+2.  **`gameLocations` (attorno alla riga 3169):** Aggiungi l'oggetto completo della tua nuova location qui, definendo `id`, `title`, `image`, `guideText` e i `buttons` con le relative azioni.
+    ```javascript
+    // Cerca questo codice:
+    const gameLocations = {
+        "location_1": { /* ... */ },
+        "tuo_nuovo_id": {
+            id: "tuo_nuovo_id",
+            title: "Titolo della Nuova Location",
+            // ... ecc.
+        }
+    };
+    ```
+
+### 2. Aggiungere Nuovi Obiettivi
+
+Vai alla definizione dell'array `objectiveDeck` per aggiungere il tuo nuovo oggetto obiettivo.
+
+-   **`objectiveDeck` (attorno alla riga 3307):**
+    ```javascript
+    // Cerca questo codice:
+    const objectiveDeck = [
+        { /* ... obiettivo esistente ... */ },
+        {
+            id: "tuo_nuovo_obiettivo",
+            description: "Descrizione del nuovo obiettivo...",
+            // ... ecc.
+        }
+    ];
+    ```
+
+### 3. Aggiungere Nuove Cutscene
+
+Le cutscene sono definite nell'oggetto `cutsceneData`. Puoi aggiungere una nuova sequenza di slide definendo una nuova chiave.
+
+-   **`cutsceneData` (attorno alla riga 2647):**
+    ```javascript
+    // Cerca questo codice:
+    const cutsceneData = {
+        "cutscene_01": { /* ... */ },
+        "la_tua_nuova_cutscene": {
+            title: "Titolo della Cutscene",
+            slides: [
+                { narrative: "Testo slide 1.", image: "img/immagine1.png" },
+                { narrative: "Testo slide 2.", image: "img/immagine2.png" }
+            ]
+        }
+    };
+    ```
+
+### 4. Aggiungere Nuove Risorse
+
+Aggiungere una nuova risorsa richiede modifiche in 3 punti:
+
+1.  **HTML - Interfaccia Utente (attorno alla riga 1750):**
+    Aggiungi un nuovo `div class="resource-item"` all'interno della sezione `class="resources-section"`. Assicurati di usare ID univoci per l'icona e il valore.
+    ```html
+    <!-- Cerca: <div class="resources-section"> -->
+    <div class="resource-item">
+        <div class="resource-icon" id="nuova_risorsa-icon">
+            <img src="img/nuova_risorsa.png" alt="Nuova Risorsa" onerror="resourceImageError(this, '❓')">
+        </div>
+        <div class="resource-info">
+            <div class="resource-label">Nuova Risorsa</div>
+            <div class="resource-value" id="nuova_risorsa-value">0</div>
+        </div>
+    </div>
+    ```
+
+2.  **JavaScript - Dati di Default (attorno alla riga 2777):**
+    Aggiungi la nuova risorsa con il suo valore iniziale nell'oggetto `this.defaultData.resources`.
+    ```javascript
+    // Cerca: this.defaultData = {
+    // e poi la sezione resources:
+    resources: {
+        shillings: 0,
+        // ... altre risorse
+        nuova_risorsa: 0 // Il tuo nuovo valore di default
+    },
+    ```
+
+3.  **JavaScript - Aggiornamento UI (attorno alla riga 3925):**
+    Aggiorna la funzione `updateResourcesDisplay()` per mostrare il valore della nuova risorsa nell'interfaccia.
+    ```javascript
+    // Cerca: function updateResourcesDisplay()
+    function updateResourcesDisplay() {
+        // ...
+        const nuovaRisorsaElement = document.getElementById('nuova_risorsa-value');
+        if (nuovaRisorsaElement) nuovaRisorsaElement.textContent = (Player.get('resources.nuova_risorsa') || 0).toLocaleString();
+    }
+    ```
+
+### 5. Gestione delle Immagini
+
+Tutte le immagini (per location, cutscene, icone, ecc.) sono referenziate tramite un percorso relativo (es. `img/nome_file.png` o `locations/nome_file.jpg`).
+Per aggiungere nuove immagini:
+1.  Crea una cartella nella directory principale del progetto se non esiste già (es. `img/`).
+2.  Inserisci i tuoi file immagine in quella cartella.
+3.  Fai riferimento ad esse nel codice usando il percorso corretto, ad esempio `image: "img/la_tua_immagine.png"`.
+
+### 6. Gestione dei File Audio (Musica)
+
+Per aggiungere o modificare la playlist della musica di sottofondo:
+
+1.  Aggiungi i tuoi file audio (es. `.mp3`) nella cartella `audio/`.
+2.  Modifica l'array `musicFiles` all'interno della funzione di inizializzazione del gioco.
+
+-   **`musicFiles` (attorno alla riga 4121):**
+    ```javascript
+    // Cerca questo codice (verso la fine del file):
+    window.addEventListener('load', function() {
+        // ...
+        const musicFiles = ['audio/placeholder.mp3', 'audio/nuova_canzone.mp3'];
+        audioManager.playBackgroundMusic(musicFiles);
+    });
+    ```
+    Basta aggiungere il percorso del tuo nuovo file audio all'array `musicFiles`. Il sistema li riprodurrà in sequenza.
