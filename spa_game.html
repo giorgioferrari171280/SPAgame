@@ -2428,7 +2428,20 @@
                     Player.data.stats = JSON.parse(JSON.stringify(Player.defaultData.stats));
                     Player.data.profile.level = 1;
                     Player.data.profile.experience = 0;
+                    Player.data.profile.score = 0;
                     Player.data.gameData = JSON.parse(JSON.stringify(Player.defaultData.gameData));
+
+                    // Pesca il primo obiettivo per l'anno 1
+                    const availableObjectives = [...objectiveDeck];
+                    const randomIndex = Math.floor(Math.random() * availableObjectives.length);
+                    const firstObjective = availableObjectives[randomIndex];
+
+                    if (firstObjective) {
+                        const objectiveProgress = Player.get('gameData.objectiveProgress');
+                        objectiveProgress.currentObjectiveId = firstObjective.id;
+                        objectiveProgress.usedObjectiveIds.push(firstObjective.id);
+                        Player.set('gameData.objectiveProgress', objectiveProgress);
+                    }
 
                     // Forza un salvataggio immediato dei dati resettati.
                     Player.saveData(true);
@@ -2685,6 +2698,7 @@
                         level: 1,
                         experience: 0,
                         experienceToNext: 100,
+                        score: 0,
                         class: 'avventuriero',
                         avatar: 'default.png'
                     },
@@ -2747,8 +2761,12 @@
                         currentBoardPosition: 0,
                         currentLocation: 'location_1',
                         currentYear: 1, // Anno di gioco attuale
-                        yearlyStats: {
-                            fish_sold_this_year: 0
+                        objectiveProgress: {
+                            currentObjectiveId: null,
+                            usedObjectiveIds: [],
+                            stats: {
+                                fish_sold_this_year: 0
+                            }
                         },
                         gameFlags: {}
                     }
@@ -3196,64 +3214,80 @@
             }
         };
         
-        // Database per le cutscene di fine anno e finali
-        const yearEndCutscenes = {
-            1: { title: "Fine del Primo Anno", narrative: "Un anno è passato. Le stagioni sono cambiate, ma la tua determinazione è più forte che mai. Nuove sfide ti attendono.", image: "img/placeholder_year1.png" },
-            2: { title: "Fine del Secondo Anno", narrative: "Due anni di fatiche e successi. La tua fama inizia a crescere. Cosa ti riserverà il futuro?", image: "img/placeholder_year2.png" },
-            3: { title: "Fine del Terzo Anno", narrative: "Tre anni. Sei un veterano ormai. Le tue decisioni hanno plasmato questa terra.", image: "img/placeholder_year3.png" },
-            4: { title: "Fine del Quarto Anno", narrative: "Quattro anni. Il mondo intorno a te è cambiato, e tu con esso.", image: "img/placeholder_year4.png" },
-            5: { title: "Fine del Quinto Anno", narrative: "Cinque anni. Metà del tuo viaggio è compiuta. Guarda indietro con orgoglio e avanti con speranza.", image: "img/placeholder_year5.png" },
-            6: { title: "Fine del Sesto Anno", narrative: "Sei anni. Le difficoltà ti hanno reso più forte. La fine non è lontana.", image: "img/placeholder_year6.png" },
-            7: { title: "Fine del Settimo Anno", narrative: "Sette anni. I semi che hai piantato stanno dando i loro frutti.", image: "img/placeholder_year7.png" },
-            8: { title: "Fine dell'Ottavo Anno", narrative: "Otto anni. La leggenda del tuo nome si diffonde in lungo e in largo.", image: "img/placeholder_year8.png" },
-            9: { title: "Fine del Nono Anno", narrative: "Nove anni. L'ultimo anno ti attende. Prepara le tue forze per lo sprint finale.", image: "img/placeholder_year9.png" },
-        };
-
-        const finalCutscenes = {
-            "shillings": { title: "Finale: Il Magnate", narrative: "Hai accumulato ricchezze inimmaginabili. Il tuo nome è sussurrato nelle sale del potere e i tuoi scellini possono comprare regni. La tua eredità è un impero finanziario.", image: "img/ending_rich.png" },
-            "cows": { title: "Finale: Il Re Mandriano", narrative: "Le tue mandrie sono le più grandi che si siano mai viste. Controlli il mercato del bestiame e la tua influenza si estende su ogni pascolo. La tua eredità è legata alla terra.", image: "img/ending_cows.png" },
-            "workers": { title: "Finale: Il Leader del Popolo", narrative: "Hai radunato una forza lavoro leale e potente. Le tue gilde e i tuoi lavoratori sono il cuore pulsante della nazione. La tua eredità è una società prospera.", image: "img/ending_workers.png" },
-            "default": { title: "Finale: L'Avventuriero", narrative: "Hai vissuto una vita piena di avventure, senza eccellere in un campo specifico ma lasciando il segno ovunque. La tua eredità è una storia che verrà raccontata per generazioni.", image: "img/ending_default.png" }
-        };
-
-        // Database per gli obiettivi annuali (bonus/penalità)
-        const yearlyObjectives = {
-            1: { // Obiettivo Anno 1
-                description: "<strong>Obiettivo Anno 1:</strong> Le maree di questo inverno hanno portato le aringhe lontano dalla costa e i mercati del pesce sono vuoti. Se riuscirai a vendere almeno 100 unità di pesce prima della fine dell'anno, guadagnerai 1500 punti bonus.",
-                type: 'bonus',
+        // "Mazzo" di obiettivi annuali casuali.
+        const objectiveDeck = [
+            {
+                id: "sell_fish",
+                description: "<strong>Obiettivo Annuale:</strong> Le maree di questo inverno hanno portato le aringhe lontano dalla costa e i mercati del pesce sono vuoti. Vendi più pesce che puoi per ottenere un grande bonus al tuo punteggio.",
                 condition: {
                     type: 'stat_check',
-                    stat: 'fish_sold_this_year',
-                    target: 100
+                    stat: 'fish_sold_this_year'
                 },
-                reward: {
-                    type: 'add_resource',
-                    resource: 'shillings',
-                    amount: 1500
-                },
-                outcomeText: {
-                    success: "Hai soddisfatto la richiesta del mercato del pesce! Guadagni 1500 punti bonus.",
-                    failure: "Non sei riuscito a vendere abbastanza pesce per ottenere il bonus."
+                scoringTiers: [
+                    { target: 301, points: 500, outcomeId: 'gold' },
+                    { target: 101, points: 200, outcomeId: 'silver' },
+                    { target: 50,  points: 150, outcomeId: 'bronze' },
+                    { target: 0,   points: 0,   outcomeId: 'failure' }
+                ],
+                outcomes: {
+                    'gold': {
+                        title: "Monarca dei Mari",
+                        narrative: "Le tue flotte hanno dominato i mari! Hai venduto una quantità sbalorditiva di pesce, riempiendo i mercati e le tue tasche. Hai guadagnato 500 punti.",
+                        image: "img/fish_gold.png"
+                    },
+                    'silver': {
+                        title: "Pescatore Esperto",
+                        narrative: "Un'ottima stagione di pesca! Hai venduto molto pesce e la gente te ne è grata. Hai guadagnato 200 punti.",
+                        image: "img/fish_silver.png"
+                    },
+                    'bronze': {
+                        title: "Rete Mezza Piena",
+                        narrative: "Sei riuscito a vendere abbastanza pesce per soddisfare la domanda di base. Un risultato onorevole. Hai guadagnato 150 punti.",
+                        image: "img/fish_bronze.png"
+                    },
+                    'failure': {
+                        title: "Mari Avversi",
+                        narrative: "Le maree sono state avverse e le tue reti sono rimaste vuote. Non hai venduto abbastanza pesce. Hai guadagnato 0 punti.",
+                        image: "img/fish_failure.png"
+                    }
                 }
             },
-            2: { // Obiettivo Anno 2
-                description: "<strong>Obiettivo Anno 2:</strong> L'inverno si preannuncia rigido. Le tue scorte di carne non devono scendere sotto le 50 unità, altrimenti il morale della gente crollerà e il tuo punteggio verrà ridotto del 20%.",
-                type: 'penalty',
+            {
+                id: "maintain_meat",
+                description: "<strong>Obiettivo Annuale:</strong> L'inverno si preannuncia rigido. Accumula più carne possibile per assicurare il benessere della tua gente e aumentare la tua fama.",
                 condition: {
                     type: 'resource_check',
-                    resource: 'meat',
-                    target: 50 // Deve essere >= target
+                    resource: 'meat'
                 },
-                penalty: {
-                    type: 'score_multiplier',
-                    resource: 'shillings',
-                    multiplier: 0.8
-                },
-                outcomeText: {
-                    success: "Le tue scorte di carne sono sufficienti per superare l'inverno. Il morale è alto!",
-                    failure: "Le tue scorte di carne erano troppo basse! Il tuo punteggio è stato ridotto del 20%."
+                scoringTiers: [
+                    { target: 100, points: 300, outcomeId: 'gold' },
+                    { target: 50,  points: 150, outcomeId: 'silver' },
+                    { target: 0,   points: 0,   outcomeId: 'failure' }
+                ],
+                outcomes: {
+                    'gold': {
+                        title: "Dispense Reali",
+                        narrative: "Le tue scorte di carne sono così abbondanti che potrebbero sfamare un esercito! La tua previdenza è leggendaria. Hai guadagnato 300 punti.",
+                        image: "img/meat_gold.png"
+                    },
+                    'silver': {
+                        title: "Inverno Tranquillo",
+                        narrative: "Hai abbastanza carne per superare l'inverno senza preoccupazioni. La tua gente si sente al sicuro. Hai guadagnato 150 punti.",
+                        image: "img/meat_silver.png"
+                    },
+                    'failure': {
+                        title: "Razioni Limitate",
+                        narrative: "Le tue scorte di carne sono pericolosamente basse. L'inverno sarà duro e il malcontento serpeggia. Hai guadagnato 0 punti.",
+                        image: "img/meat_failure.png"
+                    }
                 }
             }
+        ];
+
+        const finalCutscenes = {
+            "epilogo_oro": { title: "Finale d'Oro: La Leggenda Vivente", narrative: "Hai trasceso ogni aspettativa. La tua ricchezza è così vasta da poter finanziare intere nazioni e la tua influenza plasma il futuro del mondo. Il tuo nome non verrà solo ricordato, ma venerato per secoli a venire come un vero titano dell'industria e del commercio.", image: "img/ending_gold.png" },
+            "epilogo_argento": { title: "Finale d'Argento: Nobile Rispettato", narrative: "Hai costruito un'eredità di prosperità e successo. Sei diventato un pilastro della comunità, un nome rispettato in ogni mercato e in ogni gilda. La tua storia sarà raccontata come un esempio di ambizione e abilità.", image: "img/ending_silver.png" },
+            "epilogo_bronzo": { title: "Finale di Bronzo: Una Vita Onorevole", narrative: "Hai lavorato sodo e vissuto una vita piena e onorevole. Anche se non hai accumulato ricchezze da favola, hai lasciato un segno indelebile sulla tua terra e nella vita delle persone che hai aiutato. La tua è una storia di tenacia e duro lavoro.", image: "img/ending_bronze.png" }
         };
 
         // Variabile globale che tiene traccia dell'ID della location in cui si trova attualmente il giocatore.
@@ -3261,142 +3295,124 @@
         
 
         /**
-         * Avvia la sequenza di eventi per la fine di un anno (anni 1-9).
-         * Questa funzione ora gestisce anche la valutazione degli obiettivi annuali.
+         * Avvia la sequenza di eventi per la fine di un anno.
+         * Valuta l'obiettivo completato, assegna punti, e pesca un nuovo obiettivo per l'anno successivo.
          */
         function startEndOfYearSequence() {
             const yearEnding = Player.get('gameData.currentYear');
-            const objective = yearlyObjectives[yearEnding];
-            let outcomeMessage = "";
-            let objectiveSucceeded = false;
+            const objectiveProgress = Player.get('gameData.objectiveProgress');
+            const activeObjectiveId = objectiveProgress.currentObjectiveId;
+            const activeObjective = objectiveDeck.find(obj => obj.id === activeObjectiveId);
+
+            let earnedPoints = 0;
+            let resultCutscene = null;
 
             // 1. Valuta l'obiettivo per l'anno appena concluso
-            if (objective) {
-                // Controlla la condizione
-                if (objective.condition.type === 'stat_check') {
-                    const currentValue = Player.get(`gameData.yearlyStats.${objective.condition.stat}`);
-                    if (currentValue !== undefined && currentValue >= objective.condition.target) {
-                        objectiveSucceeded = true;
-                    }
-                } else if (objective.condition.type === 'resource_check') {
-                    const currentValue = Player.get(`resources.${objective.condition.resource}`);
-                    if (currentValue !== undefined && currentValue >= objective.condition.target) {
-                        objectiveSucceeded = true;
-                    }
+            if (activeObjective) {
+                let performanceValue = 0;
+                if (activeObjective.condition.type === 'stat_check') {
+                    performanceValue = objectiveProgress.stats[activeObjective.condition.stat] || 0;
+                } else if (activeObjective.condition.type === 'resource_check') {
+                    performanceValue = Player.get(`resources.${activeObjective.condition.resource}`) || 0;
                 }
 
-                // Applica ricompensa o penalità
-                if (objectiveSucceeded) {
-                    outcomeMessage = objective.outcomeText.success;
-                    if (objective.type === 'bonus' && objective.reward) {
-                        Player.addResource(objective.reward.resource, objective.reward.amount);
-                    }
-                } else {
-                    outcomeMessage = objective.outcomeText.failure;
-                    if (objective.type === 'penalty' && objective.penalty) {
-                        const currentScore = Player.get(`resources.${objective.penalty.resource}`);
-                        const newScore = Math.floor(currentScore * objective.penalty.multiplier);
-                        Player.set(`resources.${objective.penalty.resource}`, newScore);
-                    }
+                const sortedTiers = [...activeObjective.scoringTiers].sort((a, b) => b.target - a.target);
+                let achievedTier = sortedTiers.find(tier => performanceValue >= tier.target);
+
+                if (!achievedTier) {
+                    achievedTier = { points: 0, outcomeId: 'failure' };
                 }
-                updateResourcesDisplay(); // Aggiorna l'UI in caso di modifica del punteggio
+
+                earnedPoints = achievedTier.points;
+                resultCutscene = activeObjective.outcomes[achievedTier.outcomeId];
+
+                const currentScore = Player.get('profile.score');
+                Player.set('profile.score', currentScore + earnedPoints);
                 updateStatsBox();
+            } else {
+                resultCutscene = { title: `Fine dell'Anno ${yearEnding}`, narrative: "Un altro anno è passato. Il viaggio continua e nuove sfide ti attendono.", image: "img/placeholder_year1.png" };
             }
 
-            // 2. Prepara la narrazione per la cutscene
-            const cutscene = yearEndCutscenes[yearEnding];
-            if (!cutscene) {
-                console.error(`Cutscene di fine anno non trovata per l'anno ${yearEnding}`);
-                Player.set('gameData.currentYear', yearEnding + 1);
-                Player.set('gameData.currentBoardPosition', 0);
-                Player.set('gameData.yearlyStats', JSON.parse(JSON.stringify(Player.defaultData.gameData.yearlyStats)));
-                Player.saveData(true);
-                showSection('game-ui-section');
-                initializeGameUI();
-                return;
+            // 2. Pesca un nuovo obiettivo per l'anno successivo
+            const usedIds = objectiveProgress.usedObjectiveIds;
+            const availableObjectives = objectiveDeck.filter(obj => !usedIds.includes(obj.id));
+            let nextObjective = null;
+            if (availableObjectives.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availableObjectives.length);
+                nextObjective = availableObjectives[randomIndex];
             }
 
-            const nextYear = yearEnding + 1;
-            const nextObjective = yearlyObjectives[nextYear];
-            let finalNarrative = "";
-
-            if (outcomeMessage) {
-                finalNarrative += `<p style="font-style: italic; color: #f39c12;">${outcomeMessage}</p><hr style="margin: 10px 0;">`;
-            }
-            finalNarrative += `<p>${cutscene.narrative.replace(/\n/g, '<br><br>')}</p>`;
+            // 3. Prepara e mostra la cutscene di fine anno
+            let finalNarrative = `<p>${resultCutscene.narrative.replace(/\n/g, '<br><br>')}</p>`;
             if (nextObjective) {
                 finalNarrative += `<hr style="margin: 10px 0;"><p>${nextObjective.description}</p>`;
+            } else {
+                finalNarrative += `<hr style="margin: 10px 0;"><p>Non ci sono più obiettivi disponibili. Il tuo viaggio sta per concludersi.</p>`;
             }
 
-            // 3. Mostra la cutscene
             showSection('cutscene-section');
             const titleElement = document.getElementById('cutscene-title');
-            titleElement.textContent = cutscene.title.toUpperCase();
-            titleElement.setAttribute('data-text', cutscene.title.toUpperCase());
+            titleElement.textContent = resultCutscene.title.toUpperCase();
+            titleElement.setAttribute('data-text', resultCutscene.title.toUpperCase());
             document.getElementById('cutscene-narrative-content').innerHTML = finalNarrative;
             const imageContainer = document.querySelector('#cutscene-section .image-container');
-            imageContainer.innerHTML = `<img src="${cutscene.image}" alt="${cutscene.title}">`;
+            imageContainer.innerHTML = `<img src="${resultCutscene.image}" alt="${resultCutscene.title}">`;
 
             // 4. Imposta il pulsante "Continua" per avviare il nuovo anno
             const continueButton = document.querySelector('#cutscene-section .continue-button');
             continueButton.onclick = () => {
-                // Incrementa l'anno e resetta lo stato per il nuovo anno
-                Player.set('gameData.currentYear', nextYear);
+                Player.set('gameData.currentYear', yearEnding + 1);
                 Player.set('gameData.currentBoardPosition', 0);
 
-                // Resetta le statistiche annuali per il nuovo anno
-                Player.set('gameData.yearlyStats', JSON.parse(JSON.stringify(Player.defaultData.gameData.yearlyStats)));
+                if (nextObjective) {
+                    objectiveProgress.usedObjectiveIds.push(nextObjective.id);
+                    objectiveProgress.currentObjectiveId = nextObjective.id;
+                } else {
+                    objectiveProgress.currentObjectiveId = null;
+                }
 
+                const defaultStats = Player.defaultData.gameData.objectiveProgress.stats;
+                objectiveProgress.stats = JSON.parse(JSON.stringify(defaultStats));
+
+                Player.set('gameData.objectiveProgress', objectiveProgress);
                 Player.saveData(true);
 
-                // Torna al gioco
                 showSection('game-ui-section');
                 initializeGameUI();
-
-                // Ripristina il comportamento originale del pulsante della cutscene
                 continueButton.onclick = continueCutscene;
             };
         }
 
         /**
-         * Determina la condizione di vittoria analizzando le risorse del giocatore.
-         * @returns {string} La risorsa che determina il finale ('shillings', 'cows', 'workers', o 'default').
+         * Determina l'ID dell'epilogo da mostrare in base al punteggio finale.
+         * @param {number} score - Il punteggio finale (scellini).
+         * @returns {string} L'ID dell'epilogo (es. 'epilogo_oro').
          */
-        function getWinningCondition() {
-            const resources = Player.get('resources');
-            // Definisce le risorse che concorrono alla vittoria.
-            const victoryResources = {
-                shillings: resources.shillings || 0,
-                cows: resources.cows || 0,
-                workers: resources.workers || 0
-            };
-
-            let maxAmount = -1;
-            let winningResource = 'default';
-
-            for (const resource in victoryResources) {
-                if (victoryResources[resource] > maxAmount) {
-                    maxAmount = victoryResources[resource];
-                    winningResource = resource;
-                }
+        function getEpilogueIdByScore(score) {
+            if (score > 2500) {
+                return 'epilogo_oro';
+            } else if (score > 1000) {
+                return 'epilogo_argento';
+            } else {
+                return 'epilogo_bronzo';
             }
-
-            // Per evitare una vittoria con un punteggio basso, si può impostare una soglia minima.
-            if (maxAmount < 10) {
-                return 'default';
-            }
-
-            return winningResource;
         }
 
         /**
-         * Avvia la sequenza di vittoria finale (anno 10).
+         * Avvia la sequenza di vittoria finale (anno 10), basata sul punteggio.
          */
         function startFinalVictorySequence() {
             console.log("🏆 Avvio sequenza di vittoria finale...");
 
-            const winningCondition = getWinningCondition();
-            const cutscene = finalCutscenes[winningCondition] || finalCutscenes['default'];
+            const finalScore = Player.get('profile.score') || 0;
+            const epilogueId = getEpilogueIdByScore(finalScore);
+            const cutscene = finalCutscenes[epilogueId];
+
+            if (!cutscene) {
+                console.error(`Epilogo non trovato per l'ID: ${epilogueId}. Si torna al menu.`);
+                showSection('main-menu-section');
+                return;
+            }
 
             // Mostra la sezione cutscene
             showSection('cutscene-section');
@@ -3499,7 +3515,7 @@
                             
                         case "trackSale":
                             const statName = `${action.resource}_sold_this_year`;
-                            const statPath = `gameData.yearlyStats.${statName}`;
+                            const statPath = `gameData.objectiveProgress.stats.${statName}`;
                             const currentValue = Player.get(statPath);
                             if (typeof currentValue !== 'undefined') {
                                 Player.set(statPath, currentValue + action.amount);
@@ -3706,13 +3722,15 @@
             console.log('✅ Game UI inizializzato con location:', currentGameLocationId);
 
             // Mostra l'obiettivo dell'anno corrente nel pannello narrativo
-            const currentYear = Player.get('gameData.currentYear');
-            const objective = yearlyObjectives[currentYear];
-            if (objective) {
-                const narrativeContent = document.getElementById('game-narrative-content');
-                if (narrativeContent) {
-                    // Aggiunge una linea e poi la descrizione dell'obiettivo.
-                    narrativeContent.innerHTML += `<hr style="margin: 10px 0;"><p>${objective.description}</p>`;
+            const objectiveProgress = Player.get('gameData.objectiveProgress');
+            if (objectiveProgress && objectiveProgress.currentObjectiveId) {
+                const activeObjective = objectiveDeck.find(obj => obj.id === objectiveProgress.currentObjectiveId);
+                if (activeObjective) {
+                    const narrativeContent = document.getElementById('game-narrative-content');
+                    if (narrativeContent) {
+                        // Aggiunge una linea e poi la descrizione dell'obiettivo.
+                        narrativeContent.innerHTML += `<hr style="margin: 10px 0;"><p>${activeObjective.description}</p>`;
+                    }
                 }
             }
         }
@@ -3815,8 +3833,8 @@
                 yearsPassedElement.textContent = (Player.get('gameData.currentYear') || 1) - 1;
             }
             if (scoreElement) {
-                // Usa gli scellini come punteggio.
-                scoreElement.textContent = (Player.get('resources.shillings') || 0).toLocaleString();
+                // Ora usa il nuovo punteggio basato sugli obiettivi.
+                scoreElement.textContent = (Player.get('profile.score') || 0).toLocaleString();
             }
         }
 
