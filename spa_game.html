@@ -881,6 +881,27 @@
             transform: scale(1);
         }
 
+        /* Stile per l'immagine del modale */
+        .modal-image-container {
+            width: 30%;
+            aspect-ratio: 1 / 1;
+            margin: -80px auto 20px; /* Margine negativo per portarla più in alto */
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%; /* Cerchio perfetto */
+            overflow: hidden;
+            display: none; /* Nascosto di default, mostrato da JS */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+        }
+
+        .modal-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         /* Titolo del modale */
         .modal-title {
             font-size: 3vh;
@@ -1422,6 +1443,7 @@
     <!-- ================= MODAL SYSTEM ================= -->
     <div id="modal-overlay" class="modal-overlay" onclick="closeModalOnOverlayClick(event)">
         <div class="modal-container" onclick="event.stopPropagation()">
+            <div id="modal-image-container" class="modal-image-container"></div>
             <div id="modal-title" class="modal-title"></div>
             <div id="modal-message" class="modal-message"></div>
             <div id="modal-buttons" class="modal-buttons"></div>
@@ -1575,8 +1597,9 @@
         let currentModalCallbacks = {};
         
         // Funzione per mostrare modale di conferma (2 pulsanti)
-        function showConfirmModal(title, message, onConfirm, onCancel = null) {
+        function showConfirmModal(title, message, onConfirm, onCancel = null, imageUrl = null) {
             const overlay = document.getElementById('modal-overlay');
+            const imageContainer = document.getElementById('modal-image-container');
             const titleElement = document.getElementById('modal-title');
             const messageElement = document.getElementById('modal-message');
             const buttonsElement = document.getElementById('modal-buttons');
@@ -1587,6 +1610,15 @@
             console.log('🔧 Callback conferma:', typeof onConfirm, onConfirm);
             console.log('🔧 Callback annulla:', typeof onCancel, onCancel);
             
+            // Gestione immagine
+            if (imageUrl) {
+                imageContainer.innerHTML = `<img src="${imageUrl}" alt="Modal Image">`;
+                imageContainer.style.display = 'block';
+            } else {
+                imageContainer.innerHTML = '';
+                imageContainer.style.display = 'none';
+            }
+
             // Imposta contenuto
             titleElement.textContent = title;
             titleElement.className = 'modal-title confirm-title';
@@ -1624,8 +1656,9 @@
         }
         
         // Funzione per mostrare modale informativo (1 pulsante)
-        function showInfoModal(title, message, onContinue = null, type = 'info') {
+        function showInfoModal(title, message, onContinue = null, type = 'info', imageUrl = null) {
             const overlay = document.getElementById('modal-overlay');
+            const imageContainer = document.getElementById('modal-image-container');
             const titleElement = document.getElementById('modal-title');
             const messageElement = document.getElementById('modal-message');
             const buttonsElement = document.getElementById('modal-buttons');
@@ -1633,6 +1666,15 @@
             // Debug
             console.log('ℹ️ Mostrando modale informativo:', title);
             
+            // Gestione immagine
+            if (imageUrl) {
+                imageContainer.innerHTML = `<img src="${imageUrl}" alt="Modal Image">`;
+                imageContainer.style.display = 'block';
+            } else {
+                imageContainer.innerHTML = '';
+                imageContainer.style.display = 'none';
+            }
+
             // Imposta contenuto
             titleElement.textContent = title;
             titleElement.className = `modal-title ${type}-title`;
@@ -1663,13 +1705,23 @@
         }
         
         // Funzione per mostrare modale con input (es. nome giocatore)
-        function showNameInputModal(title, message, placeholder, onConfirm, onCancel = null) {
+        function showNameInputModal(title, message, placeholder, onConfirm, onCancel = null, imageUrl = null) {
             const overlay = document.getElementById('modal-overlay');
+            const imageContainer = document.getElementById('modal-image-container');
             const titleElement = document.getElementById('modal-title');
             const messageElement = document.getElementById('modal-message');
             const buttonsElement = document.getElementById('modal-buttons');
 
             console.log('📝 Mostrando modale con input:', title);
+
+            // Gestione immagine
+            if (imageUrl) {
+                imageContainer.innerHTML = `<img src="${imageUrl}" alt="Modal Image">`;
+                imageContainer.style.display = 'block';
+            } else {
+                imageContainer.innerHTML = '';
+                imageContainer.style.display = 'none';
+            }
 
             // Imposta contenuto
             titleElement.textContent = title;
