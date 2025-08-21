@@ -2545,63 +2545,109 @@
         const cutsceneData = {
             "cutscene_01": {
                 "title": "L'Inizio dell'Avventura",
-                "narrative": "Era una notte buia e tempestosa quando il nostro eroe iniziò il suo viaggio. Le stelle erano nascoste dalle nuvole cariche di pioggia, e solo il bagliore intermittente dei fulmini illuminava il sentiero tortuoso che si estendeva davanti a lui.\n\nCon il cuore pieno di determinazione e la mente concentrata sull'obiettivo, prese il primo passo verso un destino che avrebbe cambiato per sempre il corso della sua vita. Non sapeva ancora quali sfide lo attendevano, ma era pronto ad affrontare qualsiasi ostacolo.\n\nIl vento ululava tra gli alberi spogli, creando una sinfonia inquietante che accompagnava ogni suo passo. Ad ogni lampo, ombre danzanti sembravano prendere vita, ma la sua determinazione non vacillava mai.",
-                "image": "cutscene_01.png"
+                "slides": [
+                    {
+                        "narrative": "Era una notte buia e tempestosa quando il nostro eroe iniziò il suo viaggio. Le stelle erano nascoste dalle nuvole cariche di pioggia, e solo il bagliore intermittente dei fulmini illuminava il sentiero tortuoso che si estendeva davanti a lui.",
+                        "image": "cutscene_01_a.png"
+                    },
+                    {
+                        "narrative": "Con il cuore pieno di determinazione e la mente concentrata sull'obiettivo, prese il primo passo verso un destino che avrebbe cambiato per sempre il corso della sua vita. Non sapeva ancora quali sfide lo attendevano, ma era pronto ad affrontare qualsiasi ostacolo.",
+                        "image": "cutscene_01_b.png"
+                    },
+                    {
+                        "narrative": "Il vento ululava tra gli alberi spogli, creando una sinfonia inquietante che accompagnava ogni suo passo. Ad ogni lampo, ombre danzanti sembravano prendere vita, ma la sua determinazione non vacillava mai.",
+                        "image": "cutscene_01_c.png"
+                    }
+                ]
             },
             "cutscene_02": {
                 "title": "L'Incontro Fatale",
-                "narrative": "Mentre si dirigeva verso il villaggio, un rumore strano attirò la sua attenzione. Tra i cespugli, una figura misteriosa lo osservava con occhi brillanti nel buio. Era questo l'incontro che avrebbe segnato l'inizio di una grande alleanza o di una terribile minaccia?\n\nLa figura si mosse lentamente, emergendo dalle ombre. Indossava un mantello scuro che ondeggiava nel vento, e i suoi occhi sembravano brillare di una luce propria. Il nostro eroe strinse la spada, pronto a tutto.",
-                "image": "path/to/cutscene_02_image.jpg"
+                "slides": [
+                    {
+                        "narrative": "Mentre si dirigeva verso il villaggio, un rumore strano attirò la sua attenzione. Tra i cespugli, una figura misteriosa lo osservava con occhi brillanti nel buio. Era questo l'incontro che avrebbe segnato l'inizio di una grande alleanza o di una terribile minaccia?",
+                        "image": "cutscene_02_a.png"
+                    },
+                    {
+                        "narrative": "La figura si mosse lentamente, emergendo dalle ombre. Indossava un mantello scuro che ondeggiava nel vento, e i suoi occhi sembravano brillare di una luce propria. Il nostro eroe strinse la spada, pronto a tutto.",
+                        "image": "cutscene_02_b.png"
+                    }
+                ]
             }
         };
 
         // Variabile per tenere traccia dell'ID della cutscene corrente.
         let currentCutsceneId = "cutscene_01";
+        let currentCutsceneSlideIndex = 0;
+
+        /**
+         * Carica una singola diapositiva (slide) di una cutscene nell'interfaccia utente.
+         * @param {number} slideIndex - L'indice della diapositiva da caricare.
+         */
+        function loadCutsceneSlide(slideIndex) {
+            const data = cutsceneData[currentCutsceneId];
+            if (!data || !data.slides || !data.slides[slideIndex]) {
+                console.error(`Slide non trovata per cutscene ${currentCutsceneId}, slide index ${slideIndex}`);
+                return;
+            }
+
+            const slide = data.slides[slideIndex];
+
+            // Aggiorna il testo narrativo
+            document.getElementById('cutscene-narrative-content').innerHTML = slide.narrative.replace(/\n/g, '<br><br>');
+
+            // Carica l'immagine della cutscene
+            const imageContainer = document.querySelector('#cutscene-section .image-container');
+            if (slide.image) {
+                imageContainer.innerHTML = `<img src="${slide.image}" alt="Cutscene Image" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.3s;">`;
+            } else {
+                imageContainer.innerHTML = '<div class="image-placeholder">Immagine della cutscene qui</div>';
+            }
+        }
 
         /**
          * Carica i dati di una specifica cutscene nell'interfaccia utente.
          * @param {string} cutsceneId - L'ID della cutscene da caricare (deve essere una chiave in `cutsceneData`).
          */
         function loadCutsceneData(cutsceneId) {
-            // Recupera i dati della cutscene dall'oggetto 'cutsceneData'.
+            currentCutsceneId = cutsceneId;
+            currentCutsceneSlideIndex = 0; // Resetta l'indice della slide
+
             const data = cutsceneData[cutsceneId];
             if (data) {
-                // Aggiorna il titolo della cutscene.
+                // Imposta il titolo per l'intera sequenza di cutscene
                 const titleElement = document.getElementById('cutscene-title');
                 titleElement.textContent = data.title.toUpperCase();
                 titleElement.setAttribute('data-text', data.title.toUpperCase());
                 
-                // Aggiorna il testo narrativo, sostituendo i ritorni a capo (\n) con tag <br> per la formattazione HTML.
-                document.getElementById('cutscene-narrative-content').innerHTML = data.narrative.replace(/\n/g, '<br><br>');
-                
-                // Carica l'immagine della cutscene.
-                const imageContainer = document.querySelector('#cutscene-section .image-container');
-                // Controlla se un'immagine valida è specificata.
-                if (data.image && data.image !== "path/to/cutscene_01_image.jpg") {
-                    // Se sì, inserisce l'elemento <img> nel contenitore.
-                    // 'onload' viene usato per creare una piccola animazione di dissolvenza quando l'immagine è pronta.
-                    imageContainer.innerHTML = `<img src="${data.image}" alt="Cutscene Image" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.3s;">`;
-                } else {
-                    // Altrimenti, mostra il testo segnaposto.
-                    imageContainer.innerHTML = '<div class="image-placeholder">Immagine della cutscene qui</div>';
-                }
+                // Carica la prima slide
+                loadCutsceneSlide(currentCutsceneSlideIndex);
+            } else {
+                console.error(`Dati cutscene non trovati per l'ID: ${cutsceneId}`);
             }
         }
 
         /**
          * Funzione chiamata quando l'utente clicca sul pulsante "CONTINUA" durante una cutscene.
-         * Determina se passare alla cutscene successiva o iniziare il gioco.
+         * Gestisce la progressione tra le slide e tra le diverse cutscene.
          */
         function continueCutscene() {
-            // Logica di esempio per una sequenza di cutscene.
-            if (currentCutsceneId === "cutscene_01") {
-                // Se siamo alla prima cutscene, passiamo alla seconda.
-                currentCutsceneId = "cutscene_02";
-                loadCutsceneData(currentCutsceneId);
+            const data = cutsceneData[currentCutsceneId];
+
+            // Controlla se ci sono altre slide nella cutscene corrente
+            if (data && data.slides && currentCutsceneSlideIndex < data.slides.length - 1) {
+                // Se sì, avanza alla prossima slide
+                currentCutsceneSlideIndex++;
+                loadCutsceneSlide(currentCutsceneSlideIndex);
             } else {
-                // Se siamo all'ultima cutscene, passiamo all'interfaccia di gioco.
-                showSection('game-ui-section');
-                initializeGameUI();
+                // Altrimenti, questa era l'ultima slide. Esegui la logica di transizione.
+                if (currentCutsceneId === "cutscene_01") {
+                    // Passa alla cutscene successiva
+                    loadCutsceneData("cutscene_02");
+                } else {
+                    // Se non ci sono altre cutscene, inizia il gioco
+                    showSection('game-ui-section');
+                    initializeGameUI();
+                }
             }
         }
 
@@ -3658,6 +3704,17 @@
             setupGameUIFooterEventListeners();
             
             console.log('✅ Game UI inizializzato con location:', currentGameLocationId);
+
+            // Mostra l'obiettivo dell'anno corrente nel pannello narrativo
+            const currentYear = Player.get('gameData.currentYear');
+            const objective = yearlyObjectives[currentYear];
+            if (objective) {
+                const narrativeContent = document.getElementById('game-narrative-content');
+                if (narrativeContent) {
+                    // Aggiunge una linea e poi la descrizione dell'obiettivo.
+                    narrativeContent.innerHTML += `<hr style="margin: 10px 0;"><p>${objective.description}</p>`;
+                }
+            }
         }
 
         /**
