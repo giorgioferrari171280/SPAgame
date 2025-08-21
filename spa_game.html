@@ -2667,7 +2667,8 @@
                         cloth: 0,
                         tools: 0,
                         stone: 0,
-                        pottery: 0
+                        pottery: 0,
+                        meat: 0
                     },
                     
                     // === INVENTARIO ===
@@ -2700,6 +2701,9 @@
                         currentBoardPosition: 0,
                         currentLocation: 'location_1',
                         currentYear: 1, // Anno di gioco attuale
+                        yearlyStats: {
+                            fish_sold_this_year: 0
+                        },
                         gameFlags: {}
                     }
                 };
@@ -3031,7 +3035,18 @@
                         ]
                     },
                     { id: "farm_oats", text: "Coltiva Avena", class: "action-button", hoverText: "Usa un lavoratore per produrre 20 avena.", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "oats", amount: 20 }, { type: "showMessage", title: "Avena Raccolta", message: "Hai prodotto 20 unità di avena." }] },
-                    { id: "farm_cows", text: "Vendi Latte", class: "action-button", hoverText: "Guadagna 15 scellini dal latte delle tue mucche.", actions: [{ type: "addResource", resource: "shillings", amount: 15 }, { type: "showMessage", title: "Latte Venduto", message: "Hai guadagnato 15 scellini." }] }
+                    { id: "farm_cows", text: "Vendi Latte", class: "action-button", hoverText: "Guadagna 15 scellini dal latte delle tue mucche.", actions: [{ type: "addResource", resource: "shillings", amount: 15 }, { type: "showMessage", title: "Latte Venduto", message: "Hai guadagnato 15 scellini." }] },
+                    {
+                        id: "farm_butcher_cow",
+                        text: "Macella Mucca",
+                        class: "action-button danger",
+                        hoverText: "Usa una mucca per produrre 50 carne.",
+                        actions: [
+                            { type: "removeResource", resource: "cows", amount: 1 },
+                            { type: "addResource", resource: "meat", amount: 50 },
+                            { type: "showMessage", title: "Carne Prodotta", message: "Hai macellato una mucca e ottenuto 50 unità di carne." }
+                        ]
+                    }
                 ]
             },
             "location_2": {
@@ -3085,7 +3100,7 @@
                 guideText: "Un piccolo villaggio sulla costa. L'aria odora di sale e pesce fresco.",
                 buttons: [
                     { id: "fish_catch", text: "Pesca", class: "action-button", hoverText: "Manda un lavoratore a pescare. (+30 Pesce)", actions: [{ type: "removeResource", resource: "workers", amount: 1 }, { type: "addResource", resource: "fish", amount: 30 }, { type: "showMessage", title: "Pesca Abbondante", message: "Hai pescato 30 pesci." }] },
-                    { id: "fish_sell", text: "Vendi Pesce", class: "action-button success", hoverText: "Vendi 30 pesce per 20 scellini.", actions: [{ type: "removeResource", resource: "fish", amount: 30 }, { type: "addResource", resource: "shillings", amount: 20 }, { type: "showMessage", title: "Pesce Venduto", message: "Hai venduto il pesce per 20 scellini." }] },
+                    { id: "fish_sell", text: "Vendi Pesce", class: "action-button success", hoverText: "Vendi 30 pesce per 20 scellini.", actions: [{ type: "removeResource", resource: "fish", amount: 30 }, { type: "addResource", resource: "shillings", amount: 20 }, { type: "trackSale", resource: "fish", amount: 30 }, { type: "showMessage", title: "Pesce Venduto", message: "Hai venduto il pesce per 20 scellini." }] },
                     { id: "fish_event", text: "Tempesta", class: "action-button danger", hoverText: "Una tempesta improvvisa impedisce di uscire in mare.", actions: [{ type: "showMessage", title: "Tempesta!", message: "Nessuno può pescare oggi." }] }
                 ]
             },
@@ -3155,46 +3170,146 @@
             "default": { title: "Finale: L'Avventuriero", narrative: "Hai vissuto una vita piena di avventure, senza eccellere in un campo specifico ma lasciando il segno ovunque. La tua eredità è una storia che verrà raccontata per generazioni.", image: "img/ending_default.png" }
         };
 
+        // Database per gli obiettivi annuali (bonus/penalità)
+        const yearlyObjectives = {
+            1: { // Obiettivo Anno 1
+                description: "<strong>Obiettivo Anno 1:</strong> Le maree di questo inverno hanno portato le aringhe lontano dalla costa e i mercati del pesce sono vuoti. Se riuscirai a vendere almeno 100 unità di pesce prima della fine dell'anno, guadagnerai 1500 punti bonus.",
+                type: 'bonus',
+                condition: {
+                    type: 'stat_check',
+                    stat: 'fish_sold_this_year',
+                    target: 100
+                },
+                reward: {
+                    type: 'add_resource',
+                    resource: 'shillings',
+                    amount: 1500
+                },
+                outcomeText: {
+                    success: "Hai soddisfatto la richiesta del mercato del pesce! Guadagni 1500 punti bonus.",
+                    failure: "Non sei riuscito a vendere abbastanza pesce per ottenere il bonus."
+                }
+            },
+            2: { // Obiettivo Anno 2
+                description: "<strong>Obiettivo Anno 2:</strong> L'inverno si preannuncia rigido. Le tue scorte di carne non devono scendere sotto le 50 unità, altrimenti il morale della gente crollerà e il tuo punteggio verrà ridotto del 20%.",
+                type: 'penalty',
+                condition: {
+                    type: 'resource_check',
+                    resource: 'meat',
+                    target: 50 // Deve essere >= target
+                },
+                penalty: {
+                    type: 'score_multiplier',
+                    resource: 'shillings',
+                    multiplier: 0.8
+                },
+                outcomeText: {
+                    success: "Le tue scorte di carne sono sufficienti per superare l'inverno. Il morale è alto!",
+                    failure: "Le tue scorte di carne erano troppo basse! Il tuo punteggio è stato ridotto del 20%."
+                }
+            }
+        };
+
         // Variabile globale che tiene traccia dell'ID della location in cui si trova attualmente il giocatore.
         let currentGameLocationId = null; // Verrà impostato all'avvio
         
 
         /**
          * Avvia la sequenza di eventi per la fine di un anno (anni 1-9).
+         * Questa funzione ora gestisce anche la valutazione degli obiettivi annuali.
          */
         function startEndOfYearSequence() {
-            const currentYear = Player.get('gameData.currentYear');
+            const yearEnding = Player.get('gameData.currentYear');
+            const objective = yearlyObjectives[yearEnding];
+            let outcomeMessage = "";
+            let objectiveSucceeded = false;
 
-            Player.set('gameData.currentYear', currentYear + 1);
-            Player.set('gameData.currentBoardPosition', 0);
-            Player.saveData(true);
+            // 1. Valuta l'obiettivo per l'anno appena concluso
+            if (objective) {
+                // Controlla la condizione
+                if (objective.condition.type === 'stat_check') {
+                    const currentValue = Player.get(`gameData.yearlyStats.${objective.condition.stat}`);
+                    if (currentValue !== undefined && currentValue >= objective.condition.target) {
+                        objectiveSucceeded = true;
+                    }
+                } else if (objective.condition.type === 'resource_check') {
+                    const currentValue = Player.get(`resources.${objective.condition.resource}`);
+                    if (currentValue !== undefined && currentValue >= objective.condition.target) {
+                        objectiveSucceeded = true;
+                    }
+                }
 
-            const cutscene = yearEndCutscenes[currentYear];
+                // Applica ricompensa o penalità
+                if (objectiveSucceeded) {
+                    outcomeMessage = objective.outcomeText.success;
+                    if (objective.type === 'bonus' && objective.reward) {
+                        Player.addResource(objective.reward.resource, objective.reward.amount);
+                    }
+                } else {
+                    outcomeMessage = objective.outcomeText.failure;
+                    if (objective.type === 'penalty' && objective.penalty) {
+                        const currentScore = Player.get(`resources.${objective.penalty.resource}`);
+                        const newScore = Math.floor(currentScore * objective.penalty.multiplier);
+                        Player.set(`resources.${objective.penalty.resource}`, newScore);
+                    }
+                }
+                updateResourcesDisplay(); // Aggiorna l'UI in caso di modifica del punteggio
+                updateStatsBox();
+            }
 
-            if (cutscene) {
-                showSection('cutscene-section');
-
-                const titleElement = document.getElementById('cutscene-title');
-                titleElement.textContent = cutscene.title.toUpperCase();
-                titleElement.setAttribute('data-text', cutscene.title.toUpperCase());
-                document.getElementById('cutscene-narrative-content').innerHTML = cutscene.narrative.replace(/\n/g, '<br><br>');
-                const imageContainer = document.querySelector('#cutscene-section .image-container');
-                imageContainer.innerHTML = `<img src="${cutscene.image}" alt="${cutscene.title}">`;
-
-                const continueButton = document.querySelector('#cutscene-section .continue-button');
-                continueButton.onclick = () => {
-                    // Azione per tornare al gioco
-                    showSection('game-ui-section');
-                    initializeGameUI();
-
-                    // Ripristina il gestore di eventi originale per le cutscene standard
-                    continueButton.onclick = continueCutscene;
-                };
-            } else {
-                console.error(`Cutscene di fine anno non trovata per l'anno ${currentYear}`);
+            // 2. Prepara la narrazione per la cutscene
+            const cutscene = yearEndCutscenes[yearEnding];
+            if (!cutscene) {
+                console.error(`Cutscene di fine anno non trovata per l'anno ${yearEnding}`);
+                Player.set('gameData.currentYear', yearEnding + 1);
+                Player.set('gameData.currentBoardPosition', 0);
+                Player.set('gameData.yearlyStats', JSON.parse(JSON.stringify(Player.defaultData.gameData.yearlyStats)));
+                Player.saveData(true);
                 showSection('game-ui-section');
                 initializeGameUI();
+                return;
             }
+
+            const nextYear = yearEnding + 1;
+            const nextObjective = yearlyObjectives[nextYear];
+            let finalNarrative = "";
+
+            if (outcomeMessage) {
+                finalNarrative += `<p style="font-style: italic; color: #f39c12;">${outcomeMessage}</p><hr style="margin: 10px 0;">`;
+            }
+            finalNarrative += `<p>${cutscene.narrative.replace(/\n/g, '<br><br>')}</p>`;
+            if (nextObjective) {
+                finalNarrative += `<hr style="margin: 10px 0;"><p>${nextObjective.description}</p>`;
+            }
+
+            // 3. Mostra la cutscene
+            showSection('cutscene-section');
+            const titleElement = document.getElementById('cutscene-title');
+            titleElement.textContent = cutscene.title.toUpperCase();
+            titleElement.setAttribute('data-text', cutscene.title.toUpperCase());
+            document.getElementById('cutscene-narrative-content').innerHTML = finalNarrative;
+            const imageContainer = document.querySelector('#cutscene-section .image-container');
+            imageContainer.innerHTML = `<img src="${cutscene.image}" alt="${cutscene.title}">`;
+
+            // 4. Imposta il pulsante "Continua" per avviare il nuovo anno
+            const continueButton = document.querySelector('#cutscene-section .continue-button');
+            continueButton.onclick = () => {
+                // Incrementa l'anno e resetta lo stato per il nuovo anno
+                Player.set('gameData.currentYear', nextYear);
+                Player.set('gameData.currentBoardPosition', 0);
+
+                // Resetta le statistiche annuali per il nuovo anno
+                Player.set('gameData.yearlyStats', JSON.parse(JSON.stringify(Player.defaultData.gameData.yearlyStats)));
+
+                Player.saveData(true);
+
+                // Torna al gioco
+                showSection('game-ui-section');
+                initializeGameUI();
+
+                // Ripristina il comportamento originale del pulsante della cutscene
+                continueButton.onclick = continueCutscene;
+            };
         }
 
         /**
@@ -3336,6 +3451,15 @@
                             Player.set(`gameData.gameFlags.${action.flag}`, action.value);
                             break;
                             
+                        case "trackSale":
+                            const statName = `${action.resource}_sold_this_year`;
+                            const statPath = `gameData.yearlyStats.${statName}`;
+                            const currentValue = Player.get(statPath);
+                            if (typeof currentValue !== 'undefined') {
+                                Player.set(statPath, currentValue + action.amount);
+                            }
+                            break;
+
                         default:
                             console.warn('⚠️ Azione sconosciuta:', action.type);
                     }
