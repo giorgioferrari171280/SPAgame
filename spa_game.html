@@ -125,7 +125,7 @@
             /* Allinea verticalmente il contenuto al centro */
             align-items: center;
             /* Allinea orizzontalmente il contenuto al centro */
-            justify-content: space-between;
+            justify-content: flex-start;
             /* Aggiunge padding orizzontale di 40px a sinistra e a destra */
             padding: 0 40px;
             /* Colore del testo bianco */
@@ -171,7 +171,7 @@
             /* Allinea verticalmente il contenuto al centro */
             align-items: center;
             /* Allinea orizzontalmente il contenuto al centro */
-            justify-content: center;
+            justify-content: space-between;
             /* Aggiunge padding orizzontale di 40px */
             padding: 0 40px;
             /* Colore del testo bianco */
@@ -1614,9 +1614,7 @@
                 
                 <!-- Footer della sezione (attualmente vuoto). -->
                 <footer class="footer-section">
-                    <div class="footer-left"></div>
-                    <div class="footer-center"></div>
-                    <div class="footer-right">
+                    <div class="footer-left">
                         <!-- Controllo del volume. -->
                         <div class="volume-control">
                             <span class="volume-icon" onclick="toggleMute()">🔊</span>
@@ -1629,6 +1627,8 @@
                                    oninput="changeVolume(this.value)">
                         </div>
                     </div>
+                    <div class="footer-center"></div>
+                    <div class="footer-right"></div>
                 </footer>
             </div>
         </div>
@@ -2360,6 +2360,27 @@
             }, 300);
         }
 
+        const objectiveFriendlyNames = {
+            "fish_sold_this_year": "Pesce venduto quest'anno",
+            "grain": "Grano",
+            "meat": "Carne",
+            "shillings": "Scellini",
+            "workers": "Lavoratori",
+            "wool": "Lana",
+            "whisky": "Whisky",
+            "peat": "Torba",
+            "coal": "Carbone",
+            "iron": "Ferro",
+            "fish": "Pesce",
+            "lumber": "Legname",
+            "oats": "Avena",
+            "cows": "Mucche",
+            "cloth": "Tessuti",
+            "tools": "Attrezzi",
+            "stone": "Pietra",
+            "pottery": "Ceramiche"
+        };
+
         function showGoalsModal() {
             const objectiveProgress = Player.get('gameData.objectiveProgress');
             const activeObjectiveId = objectiveProgress.currentObjectiveId;
@@ -2387,11 +2408,13 @@
 
                     if (condition.type === 'stat_check') {
                         resource_or_stat_name = condition.stat;
-                        conditionText = `Statistica (${resource_or_stat_name})`;
+                        const friendlyName = objectiveFriendlyNames[resource_or_stat_name] || resource_or_stat_name;
+                        conditionText = `${friendlyName}`;
                         currentValue = objectiveProgress.stats[resource_or_stat_name] || 0;
                     } else { // resource_check
                         resource_or_stat_name = condition.resource;
-                        conditionText = `Risorsa (${resource_or_stat_name})`;
+                        const friendlyName = objectiveFriendlyNames[resource_or_stat_name] || resource_or_stat_name;
+                        conditionText = `${friendlyName}`;
                         currentValue = Player.get(`resources.${resource_or_stat_name}`) || 0;
                     }
 
