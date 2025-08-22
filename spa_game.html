@@ -125,7 +125,7 @@
             /* Allinea verticalmente il contenuto al centro */
             align-items: center;
             /* Allinea orizzontalmente il contenuto al centro */
-            justify-content: space-between;
+            justify-content: center;
             /* Aggiunge padding orizzontale di 40px a sinistra e a destra */
             padding: 0 40px;
             /* Colore del testo bianco */
@@ -143,7 +143,7 @@
             /* Sfondo trasparente */
             background: transparent;
             /* Se il contenuto supera l'altezza, mostra una barra di scorrimento verticale */
-            overflow-y: auto;
+            overflow: hidden;
             /* Nessun padding interno */
             padding: 0;
             /* Colore del testo bianco */
@@ -171,7 +171,7 @@
             /* Allinea verticalmente il contenuto al centro */
             align-items: center;
             /* Allinea orizzontalmente il contenuto al centro */
-            justify-content: center;
+            justify-content: space-between;
             /* Aggiunge padding orizzontale di 40px */
             padding: 0 40px;
             /* Colore del testo bianco */
@@ -432,7 +432,7 @@
             /* Sfondo trasparente */
             background: transparent;
             /* Permette lo scrolling verticale se il contenuto è troppo lungo */
-            overflow-y: auto;
+            overflow: hidden;
             /* Nessun padding (verrà aggiunto dopo) */
             padding: 0;
             /* Colore del testo bianco */
@@ -629,16 +629,20 @@
         /* Stile per l'area principale del contenuto dell'interfaccia di gioco. */
         .game-ui-main-section {
             width: 100%;
-            /* Occupa il 90% dell'altezza del suo contenitore (.layout-container) */
-            height: 90%;
+            flex: 1; /* Occupa lo spazio verticale rimanente */
             background: transparent;
-            overflow-y: auto;
+            overflow: hidden; /* Previene lo scrolling indesiderato a questo livello */
             padding: 0;
             color: white;
             font-family: Arial, sans-serif;
+        }
+
+        /* Contenitore wrapper per il contenuto principale della UI di gioco, per gestire il padding interno. */
+        .game-ui-main-wrapper {
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: stretch;
-            /* Usa un padding e un gap relativi alla dimensione del contenitore per scalare meglio */
             padding: 1%;
             gap: 1%;
         }
@@ -646,8 +650,7 @@
         /* Stile per l'header specifico della UI di gioco. */
         .game-ui-header-section {
             width: 100%;
-            /* Occupa il 5% dell'altezza */
-            height: 5%;
+            height: 80px; /* Altezza fissa */
             background: rgba(0, 0, 0, 0.8);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
@@ -661,8 +664,7 @@
         /* Stile per il footer specifico della UI di gioco. */
         .game-ui-footer-section {
             width: 100%;
-             /* Occupa il 5% dell'altezza */
-            height: 5%;
+            height: 60px; /* Altezza fissa */
             background: rgba(0, 0, 0, 0.5);
             border-top: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
@@ -733,6 +735,12 @@
             border-radius: 5px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(3px);
+        }
+
+        .volume-label {
+            color: white;
+            font-size: 1.8vh;
+            margin-right: 5px;
         }
 
         /* Icona del volume (un elemento <span> con un'emoji). */
@@ -1614,11 +1622,10 @@
                 
                 <!-- Footer della sezione (attualmente vuoto). -->
                 <footer class="footer-section">
-                    <div class="footer-left"></div>
-                    <div class="footer-center"></div>
-                    <div class="footer-right">
+                    <div class="footer-left">
                         <!-- Controllo del volume. -->
                         <div class="volume-control">
+                            <span class="volume-label">Volume Musica</span>
                             <span class="volume-icon" onclick="toggleMute()">🔊</span>
                             <input type="range"
                                    id="volume-slider-main"
@@ -1629,6 +1636,8 @@
                                    oninput="changeVolume(this.value)">
                         </div>
                     </div>
+                    <div class="footer-center"></div>
+                    <div class="footer-right"></div>
                 </footer>
             </div>
         </div>
@@ -1668,10 +1677,8 @@
                 <footer class="footer-section" style="justify-content: space-between;">
                      <div class="footer-left">
                         <button class="back-button" onclick="showSection('main-menu-section')">← BACK TO MAIN MENU</button>
-                    </div>
-                    <div class="footer-center"></div>
-                    <div class="footer-right">
-                        <div class="volume-control">
+                        <div class="volume-control" style="margin-left: 20px;">
+                            <span class="volume-label">Volume Musica</span>
                             <span class="volume-icon" onclick="toggleMute()">🔊</span>
                             <input type="range"
                                    id="volume-slider-hof"
@@ -1682,6 +1689,8 @@
                                    oninput="changeVolume(this.value)">
                         </div>
                     </div>
+                    <div class="footer-center"></div>
+                    <div class="footer-right"></div>
                 </footer>
             </div>
         </div>
@@ -1742,202 +1751,203 @@
                 
                 <!-- Area principale della UI di gioco, divisa in due colonne. -->
                 <main class="game-ui-main-section">
-                    <!-- Colonna sinistra per l'immagine della location. -->
-                    <div class="left-column-game">
-                        <div class="image-container-game">
-                            <div class="image-placeholder">Immagine della cutscene qui</div>
-                        </div>
-                        <div class="stats-box-game">
-                            <div class="stats-column">
-                                <div class="stats-item">
-                                    <span class="stats-label">Anni Passati</span>
-                                    <span class="stats-value" id="years-passed-value">0</span>
-                                </div>
-                                <div class="stats-item">
-                                    <span class="stats-label">Punteggio</span>
-                                    <span class="stats-value" id="score-value">0</span>
-                                </div>
+                    <div class="game-ui-main-wrapper">
+                        <!-- Colonna sinistra per l'immagine della location. -->
+                        <div class="left-column-game">
+                            <div class="image-container-game">
+                                <div class="image-placeholder">Immagine della cutscene qui</div>
                             </div>
-                            <button class="goals-button" onclick="showGoalsModal()">OBIETTIVI</button>
-                        </div>
-                    </div>
-
-                    <!-- Colonna destra per le informazioni e le azioni. -->
-                    <div class="right-column-game">
-                        <!-- Griglia che mostra le risorse del giocatore. Ogni risorsa è un 'resource-item'. -->
-                        <div class="resources-section">
-                            <!-- Riga 1 -->
-                            <div class="resource-item">
-                                <div class="resource-icon" id="shillings-icon">
-                                    <!-- L'attributo 'onerror' chiama una funzione JS se l'immagine non si carica, mostrando un'icona di fallback. -->
-                                    <img src="img/shillings.png" alt="Scellini" onerror="resourceImageError(this, '💷')">
+                            <div class="stats-box-game">
+                                <div class="stats-column">
+                                    <div class="stats-item">
+                                        <span class="stats-label">Anni Passati</span>
+                                        <span class="stats-value" id="years-passed-value">0</span>
+                                    </div>
+                                    <div class="stats-item">
+                                        <span class="stats-label">Punteggio</span>
+                                        <span class="stats-value" id="score-value">0</span>
+                                    </div>
                                 </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Scellini</div>
-                                    <!-- Il valore della risorsa verrà aggiornato da JavaScript. -->
-                                    <div class="resource-value" id="shillings-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="workers-icon">
-                                    <img src="img/workers.png" alt="Lavoratori" onerror="resourceImageError(this, '👷')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Lavoratori</div>
-                                    <div class="resource-value" id="workers-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="wool-icon">
-                                    <img src="img/wool.png" alt="Lana" onerror="resourceImageError(this, '🐑')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Lana</div>
-                                    <div class="resource-value" id="wool-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="whisky-icon">
-                                    <img src="img/whisky.png" alt="Whisky" onerror="resourceImageError(this, '🥃')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Whisky</div>
-                                    <div class="resource-value" id="whisky-value">0</div>
-                                </div>
-                            </div>
-
-                            <!-- Riga 2 -->
-                            <div class="resource-item">
-                                <div class="resource-icon" id="peat-icon">
-                                    <img src="img/peat.png" alt="Torba" onerror="resourceImageError(this, '🧱')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Torba</div>
-                                    <div class="resource-value" id="peat-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="coal-icon">
-                                    <img src="img/coal.png" alt="Carbone" onerror="resourceImageError(this, '🔥')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Carbone</div>
-                                    <div class="resource-value" id="coal-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="iron-icon">
-                                    <img src="img/iron.png" alt="Ferro" onerror="resourceImageError(this, '🔩')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Ferro</div>
-                                    <div class="resource-value" id="iron-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="fish-icon">
-                                    <img src="img/fish.png" alt="Pesce" onerror="resourceImageError(this, '🐟')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Pesce</div>
-                                    <div class="resource-value" id="fish-value">0</div>
-                                </div>
-                            </div>
-
-                            <!-- Riga 3 -->
-                            <div class="resource-item">
-                                <div class="resource-icon" id="lumber-icon">
-                                    <img src="img/lumber.png" alt="Legname" onerror="resourceImageError(this, '🪵')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Legname</div>
-                                    <div class="resource-value" id="lumber-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="oats-icon">
-                                    <img src="img/oats.png" alt="Avena" onerror="resourceImageError(this, '🌾')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Avena</div>
-                                    <div class="resource-value" id="oats-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="grain-icon">
-                                    <img src="img/grain.png" alt="Grano" onerror="resourceImageError(this, '🌾')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Grano</div>
-                                    <div class="resource-value" id="grain-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="cows-icon">
-                                    <img src="img/cows.png" alt="Mucche" onerror="resourceImageError(this, '🐄')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Mucche</div>
-                                    <div class="resource-value" id="cows-value">0</div>
-                                </div>
-                            </div>
-
-                            <!-- Riga 4 (Nuove Risorse) -->
-                            <div class="resource-item">
-                                <div class="resource-icon" id="cloth-icon">
-                                    <img src="img/cloth.png" alt="Tessuti" onerror="resourceImageError(this, '👕')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Tessuti</div>
-                                    <div class="resource-value" id="cloth-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="tools-icon">
-                                    <img src="img/tools.png" alt="Attrezzi" onerror="resourceImageError(this, '🛠️')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Attrezzi</div>
-                                    <div class="resource-value" id="tools-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="stone-icon">
-                                    <img src="img/stone.png" alt="Pietra" onerror="resourceImageError(this, '🪨')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Pietra</div>
-                                    <div class="resource-value" id="stone-value">0</div>
-                                </div>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-icon" id="pottery-icon">
-                                    <img src="img/pottery.png" alt="Ceramiche" onerror="resourceImageError(this, '🏺')">
-                                </div>
-                                <div class="resource-info">
-                                    <div class="resource-label">Ceramiche</div>
-                                    <div class="resource-value" id="pottery-value">0</div>
-                                </div>
+                                <button class="goals-button" onclick="showGoalsModal()">OBIETTIVI</button>
                             </div>
                         </div>
 
-                        <!-- Contenitore inferiore che raggruppa i pulsanti di azione e il pannello narrativo. -->
-                        <div class="bottom-container">
-                            <!-- Sezione per i pulsanti di azione. Verranno generati dinamicamente da JavaScript. -->
-                            <div class="buttons-section">
-                                <!-- I pulsanti vengono generati dinamicamente dal sistema di location -->
+                        <!-- Colonna destra per le informazioni e le azioni. -->
+                        <div class="right-column-game">
+                            <!-- Griglia che mostra le risorse del giocatore. Ogni risorsa è un 'resource-item'. -->
+                            <div class="resources-section">
+                                <!-- Riga 1 -->
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="shillings-icon">
+                                        <!-- L'attributo 'onerror' chiama una funzione JS se l'immagine non si carica, mostrando un'icona di fallback. -->
+                                        <img src="img/shillings.png" alt="Scellini" onerror="resourceImageError(this, '💷')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Scellini</div>
+                                        <!-- Il valore della risorsa verrà aggiornato da JavaScript. -->
+                                        <div class="resource-value" id="shillings-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="workers-icon">
+                                        <img src="img/workers.png" alt="Lavoratori" onerror="resourceImageError(this, '👷')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Lavoratori</div>
+                                        <div class="resource-value" id="workers-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="wool-icon">
+                                        <img src="img/wool.png" alt="Lana" onerror="resourceImageError(this, '🐑')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Lana</div>
+                                        <div class="resource-value" id="wool-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="whisky-icon">
+                                        <img src="img/whisky.png" alt="Whisky" onerror="resourceImageError(this, '🥃')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Whisky</div>
+                                        <div class="resource-value" id="whisky-value">0</div>
+                                    </div>
+                                </div>
+
+                                <!-- Riga 2 -->
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="peat-icon">
+                                        <img src="img/peat.png" alt="Torba" onerror="resourceImageError(this, '🧱')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Torba</div>
+                                        <div class="resource-value" id="peat-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="coal-icon">
+                                        <img src="img/coal.png" alt="Carbone" onerror="resourceImageError(this, '🔥')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Carbone</div>
+                                        <div class="resource-value" id="coal-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="iron-icon">
+                                        <img src="img/iron.png" alt="Ferro" onerror="resourceImageError(this, '🔩')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Ferro</div>
+                                        <div class="resource-value" id="iron-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="fish-icon">
+                                        <img src="img/fish.png" alt="Pesce" onerror="resourceImageError(this, '🐟')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Pesce</div>
+                                        <div class="resource-value" id="fish-value">0</div>
+                                    </div>
+                                </div>
+
+                                <!-- Riga 3 -->
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="lumber-icon">
+                                        <img src="img/lumber.png" alt="Legname" onerror="resourceImageError(this, '🪵')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Legname</div>
+                                        <div class="resource-value" id="lumber-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="oats-icon">
+                                        <img src="img/oats.png" alt="Avena" onerror="resourceImageError(this, '🌾')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Avena</div>
+                                        <div class="resource-value" id="oats-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="grain-icon">
+                                        <img src="img/grain.png" alt="Grano" onerror="resourceImageError(this, '🌾')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Grano</div>
+                                        <div class="resource-value" id="grain-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="cows-icon">
+                                        <img src="img/cows.png" alt="Mucche" onerror="resourceImageError(this, '🐄')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Mucche</div>
+                                        <div class="resource-value" id="cows-value">0</div>
+                                    </div>
+                                </div>
+
+                                <!-- Riga 4 (Nuove Risorse) -->
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="cloth-icon">
+                                        <img src="img/cloth.png" alt="Tessuti" onerror="resourceImageError(this, '👕')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Tessuti</div>
+                                        <div class="resource-value" id="cloth-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="tools-icon">
+                                        <img src="img/tools.png" alt="Attrezzi" onerror="resourceImageError(this, '🛠️')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Attrezzi</div>
+                                        <div class="resource-value" id="tools-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="stone-icon">
+                                        <img src="img/stone.png" alt="Pietra" onerror="resourceImageError(this, '🪨')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Pietra</div>
+                                        <div class="resource-value" id="stone-value">0</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon" id="pottery-icon">
+                                        <img src="img/pottery.png" alt="Ceramiche" onerror="resourceImageError(this, '🏺')">
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-label">Ceramiche</div>
+                                        <div class="resource-value" id="pottery-value">0</div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Sezione per il testo narrativo/guida. -->
-                            <div class="narrative-section-game">
-                                <div class="narrative-title" id="narrative-title">Guida</div>
-                                <div class="narrative-content" id="game-narrative-content">
-                                    Caricamento location...
+                            <!-- Contenitore inferiore che raggruppa i pulsanti di azione e il pannello narrativo. -->
+                            <div class="bottom-container">
+                                <!-- Sezione per i pulsanti di azione. Verranno generati dinamicamente da JavaScript. -->
+                                <div class="buttons-section">
+                                    <!-- I pulsanti vengono generati dinamicamente dal sistema di location -->
+                                </div>
+
+                                <!-- Sezione per il testo narrativo/guida. -->
+                                <div class="narrative-section-game">
+                                    <div class="narrative-title" id="narrative-title">Guida</div>
+                                    <div class="narrative-content" id="game-narrative-content">
+                                        Caricamento location...
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div> <!-- Chiusura di .game-ui-main-wrapper -->
+                    </div> <!-- Chiusura di .game-ui-main-wrapper -->
                 </main>
                 
                 <!-- Footer della UI di gioco, con pulsanti e controlli. -->
@@ -1945,17 +1955,9 @@
                     <!-- Sezione sinistra del footer. -->
                     <div class="footer-left">
                         <button class="back-button" onclick="backToMainMenu()">← BACK TO MAIN MENU</button>
-                    </div>
-                    
-                    <!-- Sezione centrale del footer. -->
-                    <div class="footer-center">
-                        <button class="back-button" onclick="downloadSavegame()" style="background: linear-gradient(135deg, #27ae60, #229954);">💾 DOWNLOAD SAVEGAME</button>
-                    </div>
-                    
-                    <!-- Sezione destra del footer. -->
-                    <div class="footer-right">
                         <!-- Controllo del volume. -->
-                        <div class="volume-control">
+                        <div class="volume-control" style="margin-left: 20px;">
+                            <span class="volume-label">Volume Musica</span>
                             <span class="volume-icon" onclick="toggleMute()">🔊</span>
                             <input type="range" 
                                    id="volume-slider" 
@@ -1965,6 +1967,15 @@
                                    value="0"
                                    oninput="changeVolume(this.value)">
                         </div>
+                    </div>
+
+                    <!-- Sezione centrale del footer. -->
+                    <div class="footer-center">
+                        <button class="back-button" onclick="downloadSavegame()" style="background: linear-gradient(135deg, #27ae60, #229954);">💾 DOWNLOAD SAVEGAME</button>
+                    </div>
+
+                    <!-- Sezione destra del footer. -->
+                    <div class="footer-right">
                     </div>
                 </footer>
             </div>
@@ -2361,6 +2372,27 @@
             }, 300);
         }
 
+        const objectiveFriendlyNames = {
+            "fish_sold_this_year": "Pesce venduto quest'anno",
+            "grain": "Grano",
+            "meat": "Carne",
+            "shillings": "Scellini",
+            "workers": "Lavoratori",
+            "wool": "Lana",
+            "whisky": "Whisky",
+            "peat": "Torba",
+            "coal": "Carbone",
+            "iron": "Ferro",
+            "fish": "Pesce",
+            "lumber": "Legname",
+            "oats": "Avena",
+            "cows": "Mucche",
+            "cloth": "Tessuti",
+            "tools": "Attrezzi",
+            "stone": "Pietra",
+            "pottery": "Ceramiche"
+        };
+
         function showGoalsModal() {
             const objectiveProgress = Player.get('gameData.objectiveProgress');
             const activeObjectiveId = objectiveProgress.currentObjectiveId;
@@ -2388,11 +2420,13 @@
 
                     if (condition.type === 'stat_check') {
                         resource_or_stat_name = condition.stat;
-                        conditionText = `Statistica (${resource_or_stat_name})`;
+                        const friendlyName = objectiveFriendlyNames[resource_or_stat_name] || resource_or_stat_name;
+                        conditionText = `${friendlyName}`;
                         currentValue = objectiveProgress.stats[resource_or_stat_name] || 0;
                     } else { // resource_check
                         resource_or_stat_name = condition.resource;
-                        conditionText = `Risorsa (${resource_or_stat_name})`;
+                        const friendlyName = objectiveFriendlyNames[resource_or_stat_name] || resource_or_stat_name;
+                        conditionText = `${friendlyName}`;
                         currentValue = Player.get(`resources.${resource_or_stat_name}`) || 0;
                     }
 
@@ -3203,7 +3237,7 @@
             "location_1": {
                 id: "location_1",
                 title: "Fattoria",
-                image: "locations/farm.jpg",
+                image: "farm.png",
                 guideText: "La tua fattoria. Qui puoi coltivare grano e avena, e prenderti cura delle mucche.",
                 // Array di pulsanti/azioni disponibili in questa location.
                 buttons: [
